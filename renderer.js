@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const wordCountDisplay = document.getElementById('wordCount');
 
     // PASTE YOUR NEW API KEY HERE
-    const API_KEY = "AIzaSyCTHnn4QMUeDT7CMnY1-Da4ZX_R0V7AsM3k"; 
+    const API_KEY = "AIzaSyCTHnn4QMUeDT7CMnY1Da4ZX_R0V7AsM3k"; 
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${API_KEY}`;
 
     // Optimized Whitelist: Only contains words without standard vowels (a, e, i, o, u, y)

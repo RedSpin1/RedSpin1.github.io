@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <h1>AI/Human Content Detector</h1>
+        
+        <div id="input-area">
+            <div class="input-wrapper">
+                <textarea id="textInput" placeholder="Paste your text here..."></textarea>
+                <div id="wordCount" class="count-red">Min. 50 words: 0</div>
+            </div>
+            <button id="analyzeBtn">See Results</button>
+        </div>
+
+        <div id="result-area" class="hidden">
+            <div id="verdict"></div>
+            <button id="resetBtn">Analyze Another</button>
+        </div>
+    </div>
+    <script src="renderer.js"></script>
+</body>
+</html>

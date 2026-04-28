@@ -8,7 +8,7 @@ const textInput = document.getElementById('textInput');
 const wordCountDisplay = document.getElementById('wordCount');
 
 // !!! IMPORTANT: Replace this URL with your actual Vercel project URL
-const PROXY_URL = "https://red-spin1-github-94t83w12a-redspin1s-projects.vercel.app";
+const PROXY_URL = "https://red-spin1-github-io.vercel.app/api/analyze";
 
 // Optimized Whitelist
 const whitelist = new Set([

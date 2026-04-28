@@ -7,8 +7,8 @@ const verdict = document.getElementById('verdict');
 const textInput = document.getElementById('textInput');
 const wordCountDisplay = document.getElementById('wordCount');
 
-// CHANGE THIS URL to your actual Vercel project URL once you deploy
-const PROXY_URL = "https://red-spin1-github-p0zmzzxm8-redspin1s-projects.vercel.app";
+// !!! IMPORTANT: Replace this URL with your actual Vercel project URL
+const PROXY_URL = "https://red-spin1-github-94t83w12a-redspin1s-projects.vercel.app";
 
 // Optimized Whitelist
 const whitelist = new Set([
@@ -55,28 +55,44 @@ return;
 verdict.innerText = "Analyzing content...";
 
 try {
-// Updated: Calling your Vercel Proxy instead of Google directly
 const response = await fetch(PROXY_URL, {
 method: 'POST',
 headers: { 'Content-Type': 'application/json' },
 body: JSON.stringify({ text: textInput.value })
 });
+
+// Check if server sent an error (403, 500, etc.)
+if (!response.ok) {
+const errorData = await response.json().catch(() => ({ error: 'Unknown Error' }));
+throw new Error(`Server Error (${response.status}): ${errorData.error || response.statusText}`);
+}
+
 const data = await response.json();
 
-// Handle the response from your proxy
-verdict.innerText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Error retrieving analysis.";
+// Success: Reset style and show response
+verdict.style.fontSize = "";
+verdict.style.color = "";
+verdict.innerText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Error: No AI response.";
+
 } catch (e) {
-verdict.innerText = "Network Error. Please check your connection.";
+// Error Display: Big and Red
+verdict.style.fontSize = "24px";
+verdict.style.color = "red";
+verdict.innerText = "ERROR: " + e.message;
 }
 });
 
 resetBtn.addEventListener('click', () => {
 inputArea.classList.remove('hidden');
-resultArea.classList.remove('hidden');
-resultArea.classList.add('hidden'); // Fix: Ensure result hides
+resultArea.classList.add('hidden');
 textInput.value = "";
 wordCountDisplay.innerText = "Min. 50 words: 0";
 wordCountDisplay.className = "count-red";
+
+// Reset verdict style for next use
+verdict.style.fontSize = "";
+verdict.style.color = "";
+
 textInput.focus();
 });
 });

@@ -117,7 +117,7 @@ textarea::-webkit-scrollbar-thumb:hover,
 
 #logo {
     position: fixed;
-    top: 20px;
+    top: 10px;
     left: 20px;
     width: 150px;
     height: 150px;

@@ -23,7 +23,9 @@ body {
     box-shadow: 0 20px 40px rgba(0,0,0,0.4);
 }
 
-.input-wrapper { position: relative; }
+.input-wrapper { 
+    position: relative; 
+}
 
 h1 { 
     font-size: 2.2rem; 
@@ -37,6 +39,7 @@ textarea {
     width: 100%; 
     height: 200px; 
     padding: 20px; 
+    padding-bottom: 48px;
     border-radius: 16px; 
     border: 2px solid rgba(255,255,255,0.1); 
     background: rgba(0,0,0,0.2);
@@ -45,10 +48,40 @@ textarea {
     box-sizing: border-box; 
     resize: none;
     outline: none;
-    overflow-y: auto; /* Required to trigger scrollbar */
+    overflow-y: auto;
 }
 
-textarea:focus { border: 2px solid #38bdf8; }
+textarea:focus { 
+    border: 2px solid #38bdf8; 
+}
+
+#uploadFileBtn {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: rgba(255,255,255,0.72);
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: 1;
+    transition: opacity 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+
+#uploadFileBtn:hover {
+    color: #38bdf8;
+    transform: scale(1.03);
+    box-shadow: none;
+}
+
+#uploadFileBtn.hidden-upload {
+    opacity: 0;
+    pointer-events: none;
+}
 
 #wordCount { 
     position: absolute; 
@@ -72,9 +105,14 @@ button {
     transition: transform 0.2s, box-shadow 0.3s;
 }
 
-button:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5); }
+button:hover { 
+    transform: scale(1.05); 
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5); 
+}
 
-.hidden { display: none !important; }
+.hidden { 
+    display: none !important; 
+}
 
 #result-area { 
     background: rgba(255, 255, 255, 0.95); 
@@ -87,7 +125,6 @@ button:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(56, 189, 248,
     scrollbar-gutter: stable; 
 }
 
-/* --- Floating, Rounded Scrollbar (Applied to both areas) --- */
 textarea::-webkit-scrollbar, 
 #result-area::-webkit-scrollbar {
     width: 12px;
@@ -100,7 +137,7 @@ textarea::-webkit-scrollbar-track,
 
 textarea::-webkit-scrollbar-thumb,
 #result-area::-webkit-scrollbar-thumb {
-    background-color: rgba(150, 150, 150, 0.3); /* Slightly lighter for the dark background */
+    background-color: rgba(150, 150, 150, 0.3);
     border-radius: 20px;
     border: 3px solid transparent;
     background-clip: padding-box;
@@ -111,9 +148,13 @@ textarea::-webkit-scrollbar-thumb:hover,
     background-color: rgba(150, 150, 150, 0.5);
 }
 
-.count-red { color: #f87171; }
-.count-green { color: #34d399; }
+.count-red { 
+    color: #f87171; 
+}
 
+.count-green { 
+    color: #34d399; 
+}
 
 #logo {
     position: fixed;

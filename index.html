@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6504999697428783"
-     crossorigin="anonymous"></script>
-    
+    <title>Truth AI</title>
+
     <link rel="stylesheet" href="style.css">
-    
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
 </head>
 <body>
 
-    <!-- 🔥 Logo (top left) -->
     <a href="https://truthai.online/">
-    <img src="favicon.png" id="logo">
-</a>
+        <img src="favicon.png" id="logo">
+    </a>
 
     <div id="app">
         <h1>AI/Human Content Detector</h1>
@@ -21,8 +21,19 @@
         <div id="input-area">
             <div class="input-wrapper">
                 <textarea id="textInput" placeholder="Paste your text here..."></textarea>
+
+                <input 
+                    type="file" 
+                    id="fileUpload" 
+                    accept=".txt,.pdf,.docx" 
+                    hidden
+                >
+
+                <button type="button" id="uploadFileBtn">➜] Upload</button>
+
                 <div id="wordCount" class="count-red">Min. 50 words: 0</div>
             </div>
+
             <button id="analyzeBtn">See Results</button>
         </div>
 

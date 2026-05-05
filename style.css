@@ -90,6 +90,17 @@ textarea:focus {
     font-size: 12px; 
     font-weight: bold;
     pointer-events: none;
+    transition: color 0.25s ease;
+}
+
+#wordCountNumber {
+    display: inline-block;
+    opacity: 1;
+    transition: opacity 0.22s ease;
+}
+
+#wordCountNumber.fade-number {
+    opacity: 0;
 }
 
 button { 

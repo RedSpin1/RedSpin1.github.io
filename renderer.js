@@ -6,8 +6,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const verdict = document.getElementById("verdict");
   const textInput = document.getElementById("textInput");
   const wordCountDisplay = document.getElementById("wordCount");
+  const wordCountNumber = document.getElementById("wordCountNumber");
   const uploadFileBtn = document.getElementById("uploadFileBtn");
   const fileUpload = document.getElementById("fileUpload");
+
+  let lastWordCount = 0;
 
   const API_URL = "https://enchanting-wisp-b05916.netlify.app/.netlify/functions/analyze";
 
@@ -47,8 +50,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateWordCount() {
     const count = getWordCount(textInput.value);
-    wordCountDisplay.innerText = `Min. 50 Words: ${count}`;
     wordCountDisplay.className = count >= 50 ? "count-green" : "count-red";
+
+    if (count !== lastWordCount) {
+      wordCountNumber.classList.add("fade-number");
+
+      setTimeout(() => {
+        wordCountNumber.innerText = count;
+        wordCountNumber.classList.remove("fade-number");
+      }, 110);
+
+      lastWordCount = count;
+    }
   }
 
   function updateUploadButton() {
@@ -212,7 +225,8 @@ document.addEventListener("DOMContentLoaded", () => {
     resultArea.classList.add("hidden");
 
     textInput.value = "";
-    wordCountDisplay.innerText = "Min. 50 words: 0";
+    lastWordCount = 0;
+    wordCountNumber.innerText = "0";
     wordCountDisplay.className = "count-red";
 
     verdict.style.fontSize = "";

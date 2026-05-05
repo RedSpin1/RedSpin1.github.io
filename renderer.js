@@ -24,11 +24,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const whitelist = new Set([
     "mr", "mrs", "ms", "dr", "st", "sr", "jr",
-    "txt", "rtx", "ntx", "gtx", "sql", "css", "html", "http", "https",
-    "llc", "ltd", "vs", "tv", "dvd", "cd", "dj", "bc",
-    "pls", "plz", "brb", "btw", "smh", "tbh"
+    "txt", "rtx", "ntx", "gtx", "sql", "css", "html", "http", "https", "ftp", "sftp", "ssh",
+    "tls", "ssl", "dns", "dhcp", "tcp", "udp", "sdk", "hdd", "ssd", "cdn", "cms", "crm", "nfc", "sms", "mms",
+    "llc", "plc", "lp", "ltd", "pvt", "svc", "bldg", "atty", "rsvp", "vs",
+    "ft", "lb", "lbs", "mph", "rpm", "rps", "hr", "hrs",
+    "ppl", "pls", "plz", "srs", "thx", "thxss", "kthx", "kthxthx", "brb", "btw", "smh", "tbh",
+    "tv", "dvd", "cd", "dj", "bc", "nth", "jkr", "mjk", "blm", "cnn", "bbc", "mtv" , "msnbc", "nbc" , "cmd" 
   ]);
-
   function isRealWord(str) {
     const lower = str.toLowerCase();
     if (/(.)\1\1\1/.test(lower)) return false;

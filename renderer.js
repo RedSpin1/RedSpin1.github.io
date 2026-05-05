@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateWordCount() {
     const count = getWordCount(textInput.value);
-    wordCountDisplay.innerText = `Min. 50 words: ${count}`;
+    wordCountDisplay.innerText = `Min. 50 Words: ${count}`;
     wordCountDisplay.className = count >= 50 ? "count-green" : "count-red";
   }
 

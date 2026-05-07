@@ -13,18 +13,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const authButton = document.getElementById("authButton");
   const authModal = document.getElementById("authModal");
   const closeAuthModal = document.getElementById("closeAuthModal");
+  const authBackBtn = document.getElementById("authBackBtn");
+  const authLoginView = document.getElementById("authLoginView");
+  const authSignupView = document.getElementById("authSignupView");
+  const authVerifyView = document.getElementById("authVerifyView");
+  const authAccountView = document.getElementById("authAccountView");
   const googleLoginBtn = document.getElementById("googleLoginBtn");
   const emailLoginBtn = document.getElementById("emailLoginBtn");
+  const showSignupBtn = document.getElementById("showSignupBtn");
   const emailSignupBtn = document.getElementById("emailSignupBtn");
+  const backToLoginBtn = document.getElementById("backToLoginBtn");
   const logoutBtn = document.getElementById("logoutBtn");
   const authEmail = document.getElementById("authEmail");
   const authPassword = document.getElementById("authPassword");
+  const signupEmail = document.getElementById("signupEmail");
+  const signupPassword = document.getElementById("signupPassword");
   const authMessage = document.getElementById("authMessage");
-  const authTitle = document.getElementById("authTitle");
-  const authSubtitle = document.getElementById("authSubtitle");
+  const accountEmail = document.getElementById("accountEmail");
 
   let lastWordCount = 0;
   let currentUser = null;
+  let authBusy = false;
 
   const FREE_SCAN_LIMIT = 3;
   const FREE_SCAN_KEY = "truthai_free_scans_used";
@@ -111,8 +120,41 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(FREE_SCAN_KEY, String(used + 1));
   }
 
+  function isVerifiedUser(user) {
+    if (!user) return false;
+    const signedInWithGoogle = user.providerData.some(provider => provider.providerId === "google.com");
+    return signedInWithGoogle || user.emailVerified;
+  }
+
+  function setAuthView(view) {
+    authLoginView.classList.add("hidden");
+    authSignupView.classList.add("hidden");
+    authVerifyView.classList.add("hidden");
+    authAccountView.classList.add("hidden");
+    authBackBtn.classList.add("hidden");
+
+    if (view === "login") authLoginView.classList.remove("hidden");
+    if (view === "signup") {
+      authSignupView.classList.remove("hidden");
+      authBackBtn.classList.remove("hidden");
+    }
+    if (view === "verify") {
+      authVerifyView.classList.remove("hidden");
+      authBackBtn.classList.remove("hidden");
+    }
+    if (view === "account") authAccountView.classList.remove("hidden");
+  }
+
   function openAuthModal(message = "") {
     authMessage.innerText = message;
+
+    if (currentUser) {
+      accountEmail.innerText = currentUser.email || "Logged in";
+      setAuthView("account");
+    } else {
+      setAuthView("login");
+    }
+
     authModal.classList.remove("hidden");
   }
 
@@ -121,27 +163,29 @@ document.addEventListener("DOMContentLoaded", () => {
     authMessage.innerText = "";
   }
 
+  function friendlyAuthError(error) {
+    const code = error?.code || "";
+
+    if (code === "auth/email-already-in-use") return "An account already exists with that email.";
+    if (code === "auth/invalid-email") return "Enter a valid email address.";
+    if (code === "auth/missing-password") return "Enter your password.";
+    if (code === "auth/weak-password") return "Password should be at least 6 characters.";
+    if (code === "auth/wrong-password" || code === "auth/invalid-credential") return "Incorrect email or password.";
+    if (code === "auth/user-not-found") return "No account found with that email.";
+    if (code === "auth/popup-closed-by-user") return "Login was cancelled.";
+    if (code === "auth/cancelled-popup-request") return "A login window is already open.";
+    if (code === "auth/unauthorized-domain") return "Login is not enabled for this domain yet.";
+    if (code === "auth/too-many-requests") return "Too many attempts. Try again later.";
+
+    return "Something went wrong. Please try again.";
+  }
+
   function updateAuthUI() {
     if (currentUser) {
       authButton.innerText = "Account";
-      authTitle.innerText = "TruthAI Account";
-      authSubtitle.innerText = currentUser.email || "Logged in";
-      googleLoginBtn.classList.add("hidden");
-      emailLoginBtn.classList.add("hidden");
-      emailSignupBtn.classList.add("hidden");
-      authEmail.classList.add("hidden");
-      authPassword.classList.add("hidden");
-      logoutBtn.classList.remove("hidden");
+      accountEmail.innerText = currentUser.email || "Logged in";
     } else {
       authButton.innerText = "Login";
-      authTitle.innerText = "Welcome to TruthAI";
-      authSubtitle.innerText = "Login for unlimited scans.";
-      googleLoginBtn.classList.remove("hidden");
-      emailLoginBtn.classList.remove("hidden");
-      emailSignupBtn.classList.remove("hidden");
-      authEmail.classList.remove("hidden");
-      authPassword.classList.remove("hidden");
-      logoutBtn.classList.add("hidden");
     }
   }
 
@@ -221,27 +265,33 @@ document.addEventListener("DOMContentLoaded", () => {
     updateAuthUI();
   });
 
-  authButton.addEventListener("click", () => {
-    openAuthModal();
+  authButton.addEventListener("click", () => openAuthModal());
+  closeAuthModal.addEventListener("click", () => closeModal());
+  authBackBtn.addEventListener("click", () => {
+    authMessage.innerText = "";
+    setAuthView("login");
   });
-
-  closeAuthModal.addEventListener("click", () => {
-    closeModal();
+  backToLoginBtn.addEventListener("click", () => {
+    authMessage.innerText = "";
+    setAuthView("login");
   });
 
   authModal.addEventListener("click", event => {
-    if (event.target === authModal) {
-      closeModal();
-    }
+    if (event.target === authModal) closeModal();
   });
 
   googleLoginBtn.addEventListener("click", async () => {
+    if (authBusy) return;
+
     try {
+      authBusy = true;
       authMessage.innerText = "";
       await auth.signInWithPopup(googleProvider);
       closeModal();
     } catch (error) {
-      authMessage.innerText = error.message || "Google login failed.";
+      authMessage.innerText = friendlyAuthError(error);
+    } finally {
+      authBusy = false;
     }
   });
 
@@ -249,19 +299,39 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       authMessage.innerText = "";
       await auth.signInWithEmailAndPassword(authEmail.value, authPassword.value);
+      await auth.currentUser.reload();
+      currentUser = auth.currentUser;
+
+      if (!isVerifiedUser(currentUser)) {
+        await auth.signOut();
+        setAuthView("verify");
+        authMessage.innerText = "Please verify your email before logging in.";
+        return;
+      }
+
       closeModal();
     } catch (error) {
-      authMessage.innerText = error.message || "Login failed.";
+      authMessage.innerText = friendlyAuthError(error);
     }
+  });
+
+  showSignupBtn.addEventListener("click", () => {
+    authMessage.innerText = "";
+    signupEmail.value = authEmail.value;
+    signupPassword.value = "";
+    setAuthView("signup");
   });
 
   emailSignupBtn.addEventListener("click", async () => {
     try {
       authMessage.innerText = "";
-      await auth.createUserWithEmailAndPassword(authEmail.value, authPassword.value);
-      closeModal();
+      const credential = await auth.createUserWithEmailAndPassword(signupEmail.value, signupPassword.value);
+      await credential.user.sendEmailVerification();
+      await auth.signOut();
+      setAuthView("verify");
+      authMessage.innerText = "Verification email sent. Check your inbox.";
     } catch (error) {
-      authMessage.innerText = error.message || "Signup failed.";
+      authMessage.innerText = friendlyAuthError(error);
     }
   });
 
@@ -327,7 +397,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!currentUser && getFreeScansUsed() >= FREE_SCAN_LIMIT) {
       inputArea.classList.remove("hidden");
       resultArea.classList.add("hidden");
-      openAuthModal("Free limit reached. Login for unlimited scans.");
+      openAuthModal("Free beta limit reached. Login for unlimited scans.");
+      return;
+    }
+
+    if (currentUser && !isVerifiedUser(currentUser)) {
+      inputArea.classList.remove("hidden");
+      resultArea.classList.add("hidden");
+      openAuthModal("Please verify your email before continuing.");
       return;
     }
 
@@ -337,7 +414,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const headers = { "Content-Type": "application/json" };
 
       if (currentUser) {
-        const token = await currentUser.getIdToken();
+        const token = await currentUser.getIdToken(true);
         headers.Authorization = `Bearer ${token}`;
       }
 
@@ -355,13 +432,11 @@ document.addEventListener("DOMContentLoaded", () => {
         data.candidates?.[0]?.content?.parts?.[0]?.text ||
         "Error retrieving analysis.";
 
-      if (!currentUser) {
-        addFreeScanUsed();
-      }
+      if (!currentUser) addFreeScanUsed();
     } catch (e) {
       verdict.style.fontSize = "24px";
       verdict.style.color = "red";
-      verdict.innerText = "ERROR: " + e.message;
+      verdict.innerText = "ERROR: Unable to analyze right now. Please try again.";
     }
   });
 

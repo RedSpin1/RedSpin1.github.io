@@ -26,9 +26,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const logoutBtn = document.getElementById("logoutBtn");
   const authEmail = document.getElementById("authEmail");
   const authPassword = document.getElementById("authPassword");
+  const signupName = document.getElementById("signupName");
   const signupEmail = document.getElementById("signupEmail");
   const signupPassword = document.getElementById("signupPassword");
   const authMessage = document.getElementById("authMessage");
+  const accountName = document.getElementById("accountName");
   const accountEmail = document.getElementById("accountEmail");
 
   let lastWordCount = 0;
@@ -149,6 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
     authMessage.innerText = message;
 
     if (currentUser) {
+      accountName.innerText = currentUser.displayName || "No name set";
       accountEmail.innerText = currentUser.email || "Logged in";
       setAuthView("account");
     } else {
@@ -183,6 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateAuthUI() {
     if (currentUser) {
       authButton.innerText = "Account";
+      accountName.innerText = currentUser.displayName || "No name set";
       accountEmail.innerText = currentUser.email || "Logged in";
     } else {
       authButton.innerText = "Login";
@@ -317,6 +321,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   showSignupBtn.addEventListener("click", () => {
     authMessage.innerText = "";
+    signupName.value = "";
     signupEmail.value = authEmail.value;
     signupPassword.value = "";
     setAuthView("signup");
@@ -325,9 +330,23 @@ document.addEventListener("DOMContentLoaded", () => {
   emailSignupBtn.addEventListener("click", async () => {
     try {
       authMessage.innerText = "";
+
+      const name = signupName.value.trim();
+
+      if (!name) {
+        authMessage.innerText = "Enter your name.";
+        return;
+      }
+
       const credential = await auth.createUserWithEmailAndPassword(signupEmail.value, signupPassword.value);
+
+      await credential.user.updateProfile({
+        displayName: name
+      });
+
       await credential.user.sendEmailVerification();
       await auth.signOut();
+
       setAuthView("verify");
       authMessage.innerText = "Verification email sent. Check your inbox.";
     } catch (error) {
@@ -397,7 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!currentUser && getFreeScansUsed() >= FREE_SCAN_LIMIT) {
       inputArea.classList.remove("hidden");
       resultArea.classList.add("hidden");
-      openAuthModal("Free limit reached. Login for unlimited scans.");
+      openAuthModal("Free beta limit reached. Login for unlimited scans.");
       return;
     }
 

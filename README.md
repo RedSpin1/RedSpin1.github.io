@@ -1,4 +1,5 @@
 # TruthAI
+<img width="882" height="348" alt="image" src="https://github.com/user-attachments/assets/5b1efc7c-214e-427a-a3a4-a5ac3a445aa8" />
 
 Simple AI vs human text detector.
 

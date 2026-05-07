@@ -10,7 +10,37 @@ document.addEventListener("DOMContentLoaded", () => {
   const uploadFileBtn = document.getElementById("uploadFileBtn");
   const fileUpload = document.getElementById("fileUpload");
 
+  const authButton = document.getElementById("authButton");
+  const authModal = document.getElementById("authModal");
+  const closeAuthModal = document.getElementById("closeAuthModal");
+  const googleLoginBtn = document.getElementById("googleLoginBtn");
+  const emailLoginBtn = document.getElementById("emailLoginBtn");
+  const emailSignupBtn = document.getElementById("emailSignupBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const authEmail = document.getElementById("authEmail");
+  const authPassword = document.getElementById("authPassword");
+  const authMessage = document.getElementById("authMessage");
+  const authTitle = document.getElementById("authTitle");
+  const authSubtitle = document.getElementById("authSubtitle");
+
   let lastWordCount = 0;
+  let currentUser = null;
+
+  const FREE_SCAN_LIMIT = 3;
+  const FREE_SCAN_KEY = "truthai_free_scans_used";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBTfH0NhDeTmxjhwjxYgr7YzK4V4zQrcI4",
+    authDomain: "truthai-project1.firebaseapp.com",
+    projectId: "truthai-project1",
+    storageBucket: "truthai-project1.firebasestorage.app",
+    messagingSenderId: "627323022305",
+    appId: "1:627323022305:web:3a49f49bc659397f8040a0"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const googleProvider = new firebase.auth.GoogleAuthProvider();
 
   const API_URL = "https://enchanting-wisp-b05916.netlify.app/.netlify/functions/analyze";
 
@@ -69,6 +99,49 @@ document.addEventListener("DOMContentLoaded", () => {
       uploadFileBtn.classList.add("hidden-upload");
     } else {
       uploadFileBtn.classList.remove("hidden-upload");
+    }
+  }
+
+  function getFreeScansUsed() {
+    return Number(localStorage.getItem(FREE_SCAN_KEY) || "0");
+  }
+
+  function addFreeScanUsed() {
+    const used = getFreeScansUsed();
+    localStorage.setItem(FREE_SCAN_KEY, String(used + 1));
+  }
+
+  function openAuthModal(message = "") {
+    authMessage.innerText = message;
+    authModal.classList.remove("hidden");
+  }
+
+  function closeModal() {
+    authModal.classList.add("hidden");
+    authMessage.innerText = "";
+  }
+
+  function updateAuthUI() {
+    if (currentUser) {
+      authButton.innerText = "Account";
+      authTitle.innerText = "TruthAI Account";
+      authSubtitle.innerText = currentUser.email || "Logged in";
+      googleLoginBtn.classList.add("hidden");
+      emailLoginBtn.classList.add("hidden");
+      emailSignupBtn.classList.add("hidden");
+      authEmail.classList.add("hidden");
+      authPassword.classList.add("hidden");
+      logoutBtn.classList.remove("hidden");
+    } else {
+      authButton.innerText = "Login";
+      authTitle.innerText = "Welcome to TruthAI";
+      authSubtitle.innerText = "Login for unlimited beta scans.";
+      googleLoginBtn.classList.remove("hidden");
+      emailLoginBtn.classList.remove("hidden");
+      emailSignupBtn.classList.remove("hidden");
+      authEmail.classList.remove("hidden");
+      authPassword.classList.remove("hidden");
+      logoutBtn.classList.add("hidden");
     }
   }
 
@@ -143,6 +216,60 @@ document.addEventListener("DOMContentLoaded", () => {
     return text;
   }
 
+  auth.onAuthStateChanged(user => {
+    currentUser = user;
+    updateAuthUI();
+  });
+
+  authButton.addEventListener("click", () => {
+    openAuthModal();
+  });
+
+  closeAuthModal.addEventListener("click", () => {
+    closeModal();
+  });
+
+  authModal.addEventListener("click", event => {
+    if (event.target === authModal) {
+      closeModal();
+    }
+  });
+
+  googleLoginBtn.addEventListener("click", async () => {
+    try {
+      authMessage.innerText = "";
+      await auth.signInWithPopup(googleProvider);
+      closeModal();
+    } catch (error) {
+      authMessage.innerText = error.message || "Google login failed.";
+    }
+  });
+
+  emailLoginBtn.addEventListener("click", async () => {
+    try {
+      authMessage.innerText = "";
+      await auth.signInWithEmailAndPassword(authEmail.value, authPassword.value);
+      closeModal();
+    } catch (error) {
+      authMessage.innerText = error.message || "Login failed.";
+    }
+  });
+
+  emailSignupBtn.addEventListener("click", async () => {
+    try {
+      authMessage.innerText = "";
+      await auth.createUserWithEmailAndPassword(authEmail.value, authPassword.value);
+      closeModal();
+    } catch (error) {
+      authMessage.innerText = error.message || "Signup failed.";
+    }
+  });
+
+  logoutBtn.addEventListener("click", async () => {
+    await auth.signOut();
+    closeModal();
+  });
+
   textInput.addEventListener("input", () => {
     updateWordCount();
     updateUploadButton();
@@ -197,12 +324,26 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    if (!currentUser && getFreeScansUsed() >= FREE_SCAN_LIMIT) {
+      inputArea.classList.remove("hidden");
+      resultArea.classList.add("hidden");
+      openAuthModal("Free beta limit reached. Login for unlimited scans.");
+      return;
+    }
+
     verdict.innerText = "Analyzing content...";
 
     try {
+      const headers = { "Content-Type": "application/json" };
+
+      if (currentUser) {
+        const token = await currentUser.getIdToken();
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const response = await fetch(API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ text: textInput.value })
       });
 
@@ -213,6 +354,10 @@ document.addEventListener("DOMContentLoaded", () => {
       verdict.innerText =
         data.candidates?.[0]?.content?.parts?.[0]?.text ||
         "Error retrieving analysis.";
+
+      if (!currentUser) {
+        addFreeScanUsed();
+      }
     } catch (e) {
       verdict.style.fontSize = "24px";
       verdict.style.color = "red";
@@ -237,4 +382,5 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   updateUploadButton();
+  updateAuthUI();
 });

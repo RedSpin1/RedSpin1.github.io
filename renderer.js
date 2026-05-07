@@ -397,7 +397,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!currentUser && getFreeScansUsed() >= FREE_SCAN_LIMIT) {
       inputArea.classList.remove("hidden");
       resultArea.classList.add("hidden");
-      openAuthModal("Free beta limit reached. Login for unlimited scans.");
+      openAuthModal("Free limit reached. Login for unlimited scans.");
       return;
     }
 

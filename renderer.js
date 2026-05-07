@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       authButton.innerText = "Login";
       authTitle.innerText = "Welcome to TruthAI";
-      authSubtitle.innerText = "Login for unlimited beta scans.";
+      authSubtitle.innerText = "Login for unlimited scans.";
       googleLoginBtn.classList.remove("hidden");
       emailLoginBtn.classList.remove("hidden");
       emailSignupBtn.classList.remove("hidden");
@@ -327,7 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!currentUser && getFreeScansUsed() >= FREE_SCAN_LIMIT) {
       inputArea.classList.remove("hidden");
       resultArea.classList.add("hidden");
-      openAuthModal("Free beta limit reached. Login for unlimited scans.");
+      openAuthModal("Free limit reached. Login for unlimited scans.");
       return;
     }
 

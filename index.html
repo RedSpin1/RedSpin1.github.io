@@ -19,22 +19,45 @@
 
     <div id="authModal" class="auth-modal hidden">
         <div class="auth-card">
+            <button type="button" id="authBackBtn" class="auth-back hidden">‹</button>
             <button type="button" id="closeAuthModal" class="auth-close">×</button>
 
-            <h2 id="authTitle">Welcome to TruthAI</h2>
-            <p id="authSubtitle">Login for unlimited scans.</p>
+            <div id="authLoginView">
+                <h2 id="authTitle">Welcome to TruthAI</h2>
+                <p id="authSubtitle">Login for unlimited beta scans.</p>
 
-            <button type="button" id="googleLoginBtn" class="auth-main-btn">Continue with Google</button>
+                <button type="button" id="googleLoginBtn" class="auth-main-btn">Continue with Google</button>
 
-            <div class="auth-divider">or</div>
+                <div class="auth-divider">or</div>
 
-            <input type="email" id="authEmail" class="auth-input" placeholder="Email">
-            <input type="password" id="authPassword" class="auth-input" placeholder="Password">
+                <input type="email" id="authEmail" class="auth-input" placeholder="Email">
+                <input type="password" id="authPassword" class="auth-input" placeholder="Password">
 
-            <button type="button" id="emailLoginBtn" class="auth-main-btn">Login</button>
-            <button type="button" id="emailSignupBtn" class="auth-secondary-btn">Create Account</button>
+                <button type="button" id="emailLoginBtn" class="auth-main-btn">Login</button>
+                <button type="button" id="showSignupBtn" class="auth-secondary-btn">Create Account</button>
+            </div>
 
-            <button type="button" id="logoutBtn" class="auth-secondary-btn hidden">Logout</button>
+            <div id="authSignupView" class="hidden">
+                <h2>Create Account</h2>
+                <p class="auth-small-text">Create a free account to unlock unlimited beta scans.</p>
+
+                <input type="email" id="signupEmail" class="auth-input" placeholder="Email">
+                <input type="password" id="signupPassword" class="auth-input" placeholder="Password">
+
+                <button type="button" id="emailSignupBtn" class="auth-main-btn">Create Account</button>
+            </div>
+
+            <div id="authVerifyView" class="hidden">
+                <h2>Verify Your Email</h2>
+                <p class="auth-small-text">We sent a verification link to your email. Verify your email, then come back and log in.</p>
+                <button type="button" id="backToLoginBtn" class="auth-main-btn">Back to Login</button>
+            </div>
+
+            <div id="authAccountView" class="hidden">
+                <h2>TruthAI Account</h2>
+                <p id="accountEmail" class="auth-small-text"></p>
+                <button type="button" id="logoutBtn" class="auth-secondary-btn">Logout</button>
+            </div>
 
             <div id="authMessage"></div>
         </div>
@@ -46,7 +69,7 @@
 
     <div id="app">
         <h1>AI/Human Content Detector</h1>
-        
+
         <div id="input-area">
             <div class="input-wrapper">
                 <textarea id="textInput" placeholder="Paste your text here..."></textarea>

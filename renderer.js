@@ -51,6 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
+  const db = firebase.firestore();
+  
   const googleProvider = new firebase.auth.GoogleAuthProvider();
 
   const API_URL = "https://enchanting-wisp-b05916.netlify.app/.netlify/functions/analyze";

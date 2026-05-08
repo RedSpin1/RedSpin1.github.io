@@ -12,6 +12,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -96,7 +97,10 @@
             <button id="resetBtn">Analyze Another</button>
         </div>
     </div>
-
+<div id="recentScansSidebar" class="hidden">
+    <div id="recentScansTitle">Recent Scans</div>
+    <div id="recentScansList"></div>
+</div>
     <script src="renderer.js"></script>
 </body>
 </html>

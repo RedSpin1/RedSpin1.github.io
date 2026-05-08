@@ -273,6 +273,73 @@ document.addEventListener("DOMContentLoaded", () => {
     updateAuthUI();
   });
 
+function addScanToSidebar(scan, newest = false) {
+  const button = document.createElement("button");
+  button.className = "scan-item";
+  button.innerText = scan.title || "Untitled Scan";
+
+  button.addEventListener("click", () => {
+    textInput.value = scan.inputText || "";
+    verdict.innerText = scan.resultText || "Error retrieving saved scan.";
+
+    inputArea.classList.add("hidden");
+    resultArea.classList.remove("hidden");
+
+    verdict.style.fontSize = "";
+    verdict.style.color = "";
+
+    updateWordCount();
+    updateUploadButton();
+  });
+
+  if (newest) {
+    recentScansList.prepend(button);
+  } else {
+    recentScansList.appendChild(button);
+  }
+}
+
+async function loadRecentScans() {
+  if (!currentUser || !isVerifiedUser(currentUser)) return;
+
+  recentScansList.innerHTML = "";
+  recentScansSidebar.classList.remove("hidden");
+
+  const snapshot = await db.collection("scans")
+    .where("userId", "==", currentUser.uid)
+    .orderBy("createdAt", "desc")
+    .limit(20)
+    .get();
+
+  snapshot.forEach(doc => {
+    addScanToSidebar({
+      id: doc.id,
+      ...doc.data()
+    });
+  });
+}
+
+async function saveScan(scan) {
+  if (!currentUser || !isVerifiedUser(currentUser)) return;
+
+  const docRef = await db.collection("scans").add({
+    userId: currentUser.uid,
+    title: scan.title || "Untitled Scan",
+    inputText: scan.inputText || "",
+    resultText: scan.resultText || "",
+    wordCount: scan.wordCount || 0,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  addScanToSidebar({
+    id: docRef.id,
+    title: scan.title || "Untitled Scan",
+    inputText: scan.inputText || "",
+    resultText: scan.resultText || "",
+    wordCount: scan.wordCount || 0
+  }, true);
+}
+
   authButton.addEventListener("click", () => openAuthModal());
   closeAuthModal.addEventListener("click", () => closeModal());
   authBackBtn.addEventListener("click", () => {

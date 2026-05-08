@@ -506,6 +506,27 @@ emailSignupBtn.innerText = "Create Account";
     closeModal();
   });
 
+
+  forgotPasswordBtn.addEventListener("click", async () => {
+try {
+authMessage.innerText = "";
+
+if (!authEmail.value.trim()) {
+authMessage.innerText = "Enter your email first.";
+return;
+}
+
+await auth.sendPasswordResetEmail(authEmail.value.trim(), {
+url: "https://truthai.online/reset-password.html",
+handleCodeInApp: true
+});
+
+authMessage.innerText = "Password reset email sent.";
+} catch (error) {
+authMessage.innerText = friendlyAuthError(error);
+}
+});
+
   showSaveScanBtn.addEventListener("click", () => {
     if (!currentUser || !isVerifiedUser(currentUser)) {
       openAuthModal("Login to save scans.");

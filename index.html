@@ -18,6 +18,11 @@
 
     <button type="button" id="authButton">Login</button>
 
+    <div id="recentScansSidebar" class="hidden">
+        <div id="recentScansTitle">Recent Scans</div>
+        <div id="recentScansList"></div>
+    </div>
+
     <div id="authModal" class="auth-modal hidden">
         <div class="auth-card">
             <button type="button" id="authBackBtn" class="auth-back hidden">‹</button>
@@ -25,7 +30,7 @@
 
             <div id="authLoginView">
                 <h2 id="authTitle">Welcome to TruthAI</h2>
-                <p id="authSubtitle">Login for unlimited scans.</p>
+                <p id="authSubtitle">Login for unlimited beta scans.</p>
 
                 <button type="button" id="googleLoginBtn" class="auth-main-btn">Continue with Google</button>
 
@@ -40,7 +45,7 @@
 
             <div id="authSignupView" class="hidden">
                 <h2>Create Account</h2>
-                <p class="auth-small-text">Create a free account to unlock unlimited scans.</p>
+                <p class="auth-small-text">Create a free account to unlock unlimited beta scans.</p>
 
                 <input type="text" id="signupName" class="auth-input" placeholder="Name">
                 <input type="email" id="signupEmail" class="auth-input" placeholder="Email">
@@ -94,13 +99,21 @@
 
         <div id="result-area" class="hidden">
             <div id="verdict"></div>
+
+            <div id="saveScanArea" class="hidden">
+                <button type="button" id="showSaveScanBtn">Save Scan</button>
+
+                <div id="saveScanForm" class="hidden">
+                    <input type="text" id="scanTitleInput" placeholder="Name this scan..." maxlength="40">
+                    <button type="button" id="confirmSaveScanBtn">Save</button>
+                    <div id="saveScanMessage"></div>
+                </div>
+            </div>
+
             <button id="resetBtn">Analyze Another</button>
         </div>
     </div>
-<div id="recentScansSidebar" class="hidden">
-    <div id="recentScansTitle">Recent Scans</div>
-    <div id="recentScansList"></div>
-</div>
+
     <script src="renderer.js"></script>
 </body>
 </html>

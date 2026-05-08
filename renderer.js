@@ -461,31 +461,43 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   emailSignupBtn.addEventListener("click", async () => {
-    try {
-      authMessage.innerText = "";
+if (authBusy) return;
 
-      const name = signupName.value.trim();
+try {
+authBusy = true;
+emailSignupBtn.disabled = true;
+emailSignupBtn.innerText = "Creating...";
+authMessage.innerText = "";
 
-      if (!name) {
-        authMessage.innerText = "Enter your name.";
-        return;
-      }
+const name = signupName.value.trim();
 
-      const credential = await auth.createUserWithEmailAndPassword(signupEmail.value, signupPassword.value);
+if (!name) {
+authMessage.innerText = "Enter your name.";
+return;
+}
 
-      await credential.user.updateProfile({
-        displayName: name
-      });
+const credential = await auth.createUserWithEmailAndPassword(
+signupEmail.value,
+signupPassword.value
+);
 
-      await credential.user.sendEmailVerification();
-      await auth.signOut();
+await credential.user.updateProfile({
+displayName: name
+});
 
-      setAuthView("verify");
-      authMessage.innerText = "Verification email sent. Check your inbox.";
-    } catch (error) {
-      authMessage.innerText = friendlyAuthError(error);
-    }
-  });
+await credential.user.sendEmailVerification();
+await auth.signOut();
+
+setAuthView("verify");
+authMessage.innerText = "Verification email sent. Check your inbox.";
+} catch (error) {
+authMessage.innerText = friendlyAuthError(error);
+} finally {
+authBusy = false;
+emailSignupBtn.disabled = false;
+emailSignupBtn.innerText = "Create Account";
+}
+});
 
   logoutBtn.addEventListener("click", async () => {
     await auth.signOut();

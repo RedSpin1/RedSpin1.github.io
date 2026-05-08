@@ -525,9 +525,16 @@ async function saveScan(scan) {
 
       if (!response.ok) throw new Error(data.error || "Server error");
 
-      verdict.innerText =
-        data.candidates?.[0]?.content?.parts?.[0]?.text ||
-        "Error retrieving analysis.";
+      verdict.innerText = data.result || "Error retrieving analysis.";
+
+      if (currentUser && isVerifiedUser(currentUser)) {
+  await saveScan({
+    title: data.title || "Untitled Scan",
+    inputText: textInput.value,
+    resultText: verdict.innerText,
+    wordCount: getWordCount(textInput.value)
+  });
+}
 
       if (!currentUser) addFreeScanUsed();
     } catch (e) {

@@ -268,10 +268,17 @@ document.addEventListener("DOMContentLoaded", () => {
     return text;
   }
 
-  auth.onAuthStateChanged(user => {
-    currentUser = user;
-    updateAuthUI();
-  });
+ auth.onAuthStateChanged(user => {
+  currentUser = user;
+  updateAuthUI();
+
+  if (user && isVerifiedUser(user)) {
+    loadRecentScans();
+  } else {
+    recentScansList.innerHTML = "";
+    recentScansSidebar.classList.add("hidden");
+  }
+});
 
 function addScanToSidebar(scan, newest = false) {
   const button = document.createElement("button");

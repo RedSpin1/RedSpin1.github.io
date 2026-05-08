@@ -32,6 +32,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const authMessage = document.getElementById("authMessage");
   const accountName = document.getElementById("accountName");
   const accountEmail = document.getElementById("accountEmail");
+  const recentScansSidebar = document.getElementById("recentScansSidebar");
+  const recentScansList = document.getElementById("recentScansList");
 
   let lastWordCount = 0;
   let currentUser = null;

@@ -32,12 +32,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const authMessage = document.getElementById("authMessage");
   const accountName = document.getElementById("accountName");
   const accountEmail = document.getElementById("accountEmail");
+
   const recentScansSidebar = document.getElementById("recentScansSidebar");
   const recentScansList = document.getElementById("recentScansList");
+
+  const saveScanArea = document.getElementById("saveScanArea");
+  const showSaveScanBtn = document.getElementById("showSaveScanBtn");
+  const saveScanForm = document.getElementById("saveScanForm");
+  const scanTitleInput = document.getElementById("scanTitleInput");
+  const confirmSaveScanBtn = document.getElementById("confirmSaveScanBtn");
+  const saveScanMessage = document.getElementById("saveScanMessage");
 
   let lastWordCount = 0;
   let currentUser = null;
   let authBusy = false;
+  let currentScanData = null;
+  let currentScanSaved = false;
 
   const FREE_SCAN_LIMIT = 3;
   const FREE_SCAN_KEY = "truthai_free_scans_used";
@@ -54,7 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
-  
   const googleProvider = new firebase.auth.GoogleAuthProvider();
 
   const API_URL = "https://enchanting-wisp-b05916.netlify.app/.netlify/functions/analyze";
@@ -197,6 +206,118 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function resetSaveScanUI() {
+    saveScanArea.classList.add("hidden");
+    saveScanForm.classList.add("hidden");
+    showSaveScanBtn.classList.remove("hidden");
+    scanTitleInput.value = "";
+    saveScanMessage.innerText = "";
+    currentScanData = null;
+    currentScanSaved = false;
+  }
+
+  function showSaveOption() {
+    if (!currentUser || !isVerifiedUser(currentUser)) {
+      resetSaveScanUI();
+      return;
+    }
+
+    if (!currentScanData || currentScanSaved) {
+      resetSaveScanUI();
+      return;
+    }
+
+    saveScanArea.classList.remove("hidden");
+    saveScanForm.classList.add("hidden");
+    showSaveScanBtn.classList.remove("hidden");
+    saveScanMessage.innerText = "";
+  }
+
+  function addScanToSidebar(scan, newest = false) {
+    const button = document.createElement("button");
+    button.className = "scan-item";
+    button.innerText = scan.title || "Untitled Scan";
+
+    button.addEventListener("click", () => {
+      textInput.value = scan.inputText || "";
+      verdict.innerText = scan.resultText || "Error retrieving saved scan.";
+
+      inputArea.classList.add("hidden");
+      resultArea.classList.remove("hidden");
+
+      verdict.style.fontSize = "";
+      verdict.style.color = "";
+
+      currentScanData = null;
+      currentScanSaved = true;
+      resetSaveScanUI();
+
+      updateWordCount();
+      updateUploadButton();
+    });
+
+    if (newest) {
+      recentScansList.prepend(button);
+    } else {
+      recentScansList.appendChild(button);
+    }
+  }
+
+  async function loadRecentScans() {
+    if (!currentUser || !isVerifiedUser(currentUser)) return;
+
+    recentScansList.innerHTML = "";
+    recentScansSidebar.classList.remove("hidden");
+
+    const snapshot = await db.collection("scans")
+      .where("userId", "==", currentUser.uid)
+      .orderBy("createdAt", "desc")
+      .limit(20)
+      .get();
+
+    snapshot.forEach(doc => {
+      addScanToSidebar({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+  }
+
+  async function saveScan(title) {
+    if (!currentUser || !isVerifiedUser(currentUser) || !currentScanData) return;
+
+    const cleanTitle = title.trim();
+
+    if (!cleanTitle) {
+      saveScanMessage.innerText = "Enter a scan name.";
+      return;
+    }
+
+    const scan = {
+      userId: currentUser.uid,
+      title: cleanTitle,
+      inputText: currentScanData.inputText,
+      resultText: currentScanData.resultText,
+      wordCount: currentScanData.wordCount,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    const docRef = await db.collection("scans").add(scan);
+
+    addScanToSidebar({
+      id: docRef.id,
+      title: cleanTitle,
+      inputText: currentScanData.inputText,
+      resultText: currentScanData.resultText,
+      wordCount: currentScanData.wordCount
+    }, true);
+
+    currentScanSaved = true;
+    saveScanMessage.innerText = "Saved.";
+    showSaveScanBtn.classList.add("hidden");
+    saveScanForm.classList.add("hidden");
+  }
+
   function showInvalidUpload() {
     uploadFileBtn.classList.remove("hidden-upload");
     uploadFileBtn.innerText = "Invalid Upload";
@@ -268,84 +389,18 @@ document.addEventListener("DOMContentLoaded", () => {
     return text;
   }
 
- auth.onAuthStateChanged(user => {
-  currentUser = user;
-  updateAuthUI();
+  auth.onAuthStateChanged(user => {
+    currentUser = user;
+    updateAuthUI();
 
-  if (user && isVerifiedUser(user)) {
-    loadRecentScans();
-  } else {
-    recentScansList.innerHTML = "";
-    recentScansSidebar.classList.add("hidden");
-  }
-});
-
-function addScanToSidebar(scan, newest = false) {
-  const button = document.createElement("button");
-  button.className = "scan-item";
-  button.innerText = scan.title || "Untitled Scan";
-
-  button.addEventListener("click", () => {
-    textInput.value = scan.inputText || "";
-    verdict.innerText = scan.resultText || "Error retrieving saved scan.";
-
-    inputArea.classList.add("hidden");
-    resultArea.classList.remove("hidden");
-
-    verdict.style.fontSize = "";
-    verdict.style.color = "";
-
-    updateWordCount();
-    updateUploadButton();
+    if (user && isVerifiedUser(user)) {
+      loadRecentScans();
+    } else {
+      recentScansList.innerHTML = "";
+      recentScansSidebar.classList.add("hidden");
+      resetSaveScanUI();
+    }
   });
-
-  if (newest) {
-    recentScansList.prepend(button);
-  } else {
-    recentScansList.appendChild(button);
-  }
-}
-
-async function loadRecentScans() {
-  if (!currentUser || !isVerifiedUser(currentUser)) return;
-
-  recentScansList.innerHTML = "";
-  recentScansSidebar.classList.remove("hidden");
-
-  const snapshot = await db.collection("scans")
-    .where("userId", "==", currentUser.uid)
-    .orderBy("createdAt", "desc")
-    .limit(20)
-    .get();
-
-  snapshot.forEach(doc => {
-    addScanToSidebar({
-      id: doc.id,
-      ...doc.data()
-    });
-  });
-}
-
-async function saveScan(scan) {
-  if (!currentUser || !isVerifiedUser(currentUser)) return;
-
-  const docRef = await db.collection("scans").add({
-    userId: currentUser.uid,
-    title: scan.title || "Untitled Scan",
-    inputText: scan.inputText || "",
-    resultText: scan.resultText || "",
-    wordCount: scan.wordCount || 0,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  });
-
-  addScanToSidebar({
-    id: docRef.id,
-    title: scan.title || "Untitled Scan",
-    inputText: scan.inputText || "",
-    resultText: scan.resultText || "",
-    wordCount: scan.wordCount || 0
-  }, true);
-}
 
   authButton.addEventListener("click", () => openAuthModal());
   closeAuthModal.addEventListener("click", () => closeModal());
@@ -437,6 +492,26 @@ async function saveScan(scan) {
     closeModal();
   });
 
+  showSaveScanBtn.addEventListener("click", () => {
+    if (!currentUser || !isVerifiedUser(currentUser)) {
+      openAuthModal("Login to save scans.");
+      return;
+    }
+
+    showSaveScanBtn.classList.add("hidden");
+    saveScanForm.classList.remove("hidden");
+    scanTitleInput.focus();
+  });
+
+  confirmSaveScanBtn.addEventListener("click", async () => {
+    try {
+      saveScanMessage.innerText = "";
+      await saveScan(scanTitleInput.value);
+    } catch {
+      saveScanMessage.innerText = "Could not save scan.";
+    }
+  });
+
   textInput.addEventListener("input", () => {
     updateWordCount();
     updateUploadButton();
@@ -485,6 +560,7 @@ async function saveScan(scan) {
 
     verdict.style.fontSize = "";
     verdict.style.color = "";
+    resetSaveScanUI();
 
     if (count < 50) {
       verdict.innerText = "Please enter at least 50 words.";
@@ -494,7 +570,7 @@ async function saveScan(scan) {
     if (!currentUser && getFreeScansUsed() >= FREE_SCAN_LIMIT) {
       inputArea.classList.remove("hidden");
       resultArea.classList.add("hidden");
-      openAuthModal("Free limit reached. Login for unlimited scans.");
+      openAuthModal("Free beta limit reached. Login for unlimited scans.");
       return;
     }
 
@@ -525,16 +601,18 @@ async function saveScan(scan) {
 
       if (!response.ok) throw new Error(data.error || "Server error");
 
-      verdict.innerText = data.result || "Error retrieving analysis.";
+      verdict.innerText =
+        data.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "Error retrieving analysis.";
 
-      if (currentUser && isVerifiedUser(currentUser)) {
-  await saveScan({
-    title: data.title || "Untitled Scan",
-    inputText: textInput.value,
-    resultText: verdict.innerText,
-    wordCount: getWordCount(textInput.value)
-  });
-}
+      currentScanData = {
+        inputText: textInput.value,
+        resultText: verdict.innerText,
+        wordCount: getWordCount(textInput.value)
+      };
+
+      currentScanSaved = false;
+      showSaveOption();
 
       if (!currentUser) addFreeScanUsed();
     } catch (e) {
@@ -555,6 +633,8 @@ async function saveScan(scan) {
 
     verdict.style.fontSize = "";
     verdict.style.color = "";
+
+    resetSaveScanUI();
 
     textInput.focus();
     updateUploadButton();

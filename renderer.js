@@ -42,6 +42,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const scanTitleInput = document.getElementById("scanTitleInput");
   const confirmSaveScanBtn = document.getElementById("confirmSaveScanBtn");
   const saveScanMessage = document.getElementById("saveScanMessage");
+  const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
+
 
   let lastWordCount = 0;
   let currentUser = null;

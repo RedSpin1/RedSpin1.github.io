@@ -43,6 +43,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const confirmSaveScanBtn = document.getElementById("confirmSaveScanBtn");
   const saveScanMessage = document.getElementById("saveScanMessage");
   const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
+  const authResetView = document.getElementById("authResetView");
+  const resetEmail = document.getElementById("resetEmail");
+  const sendResetEmailBtn = document.getElementById("sendResetEmailBtn");
 
 
   let lastWordCount = 0;
@@ -148,6 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
     authSignupView.classList.add("hidden");
     authVerifyView.classList.add("hidden");
     authAccountView.classList.add("hidden");
+    authResetView.classList.add("hidden");
     authBackBtn.classList.add("hidden");
 
     if (view === "login") authLoginView.classList.remove("hidden");
@@ -160,9 +164,14 @@ document.addEventListener("DOMContentLoaded", () => {
       authBackBtn.classList.remove("hidden");
     }
     if (view === "account") authAccountView.classList.remove("hidden");
+    if (view === "reset") {
+      authResetView.classList.remove("hidden");
+      authBackBtn.classList.remove("hidden");
+    }
   }
 
   function openAuthModal(message = "") {
+    authMessage.style.color = message ? "#f87171" : "#f87171";
     authMessage.innerText = message;
 
     if (currentUser) {
@@ -178,6 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function closeModal() {
     authModal.classList.add("hidden");
+    authMessage.style.color = "#f87171";
     authMessage.innerText = "";
   }
 
@@ -196,6 +206,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (code === "auth/too-many-requests") return "Too many attempts. Try again later.";
 
     return "Something went wrong. Please try again.";
+  }
+
+  function showAuthError(message) {
+    authMessage.style.color = "#f87171";
+    authMessage.innerText = message;
+  }
+
+  function showAuthSuccess(message) {
+    authMessage.style.color = "#34d399";
+    authMessage.innerText = message;
   }
 
   function updateAuthUI() {
@@ -407,11 +427,11 @@ document.addEventListener("DOMContentLoaded", () => {
   authButton.addEventListener("click", () => openAuthModal());
   closeAuthModal.addEventListener("click", () => closeModal());
   authBackBtn.addEventListener("click", () => {
-    authMessage.innerText = "";
+    showAuthError("");
     setAuthView("login");
   });
   backToLoginBtn.addEventListener("click", () => {
-    authMessage.innerText = "";
+    showAuthError("");
     setAuthView("login");
   });
 
@@ -463,43 +483,61 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   emailSignupBtn.addEventListener("click", async () => {
-if (authBusy) return;
+    if (authBusy) return;
 
-try {
-authBusy = true;
-emailSignupBtn.disabled = true;
-emailSignupBtn.innerText = "Creating...";
-authMessage.innerText = "";
+    try {
+      authBusy = true;
+      emailSignupBtn.disabled = true;
+      emailSignupBtn.innerText = "Creating...";
+      showAuthError("");
 
-const name = signupName.value.trim();
+      const name = signupName.value.trim();
+      const email = signupEmail.value.trim();
 
-if (!name) {
-authMessage.innerText = "Enter your name.";
-return;
-}
+      if (!name) {
+        showAuthError("Enter your name.");
+        return;
+      }
 
-const credential = await auth.createUserWithEmailAndPassword(
-signupEmail.value,
-signupPassword.value
-);
+      if (!email) {
+        showAuthError("Enter your email.");
+        return;
+      }
 
-await credential.user.updateProfile({
-displayName: name
-});
+      const methods = await auth.fetchSignInMethodsForEmail(email);
 
-await credential.user.sendEmailVerification();
-await auth.signOut();
+      if (methods.includes("google.com")) {
+        showAuthError("This email is already connected to Google. Please continue with Google.");
+        return;
+      }
 
-setAuthView("verify");
-authMessage.innerText = "Verification email sent. Check your inbox.";
-} catch (error) {
-authMessage.innerText = friendlyAuthError(error);
-} finally {
-authBusy = false;
-emailSignupBtn.disabled = false;
-emailSignupBtn.innerText = "Create Account";
-}
-});
+      if (methods.includes("password")) {
+        showAuthError("An account already exists with that email.");
+        return;
+      }
+
+      const credential = await auth.createUserWithEmailAndPassword(
+        email,
+        signupPassword.value
+      );
+
+      await credential.user.updateProfile({
+        displayName: name
+      });
+
+      await credential.user.sendEmailVerification();
+      await auth.signOut();
+
+      setAuthView("verify");
+      showAuthSuccess("Verification email sent. Check your inbox.");
+    } catch (error) {
+      showAuthError(friendlyAuthError(error));
+    } finally {
+      authBusy = false;
+      emailSignupBtn.disabled = false;
+      emailSignupBtn.innerText = "Create Account";
+    }
+  });
 
   logoutBtn.addEventListener("click", async () => {
     await auth.signOut();
@@ -507,25 +545,37 @@ emailSignupBtn.innerText = "Create Account";
   });
 
 
-  forgotPasswordBtn.addEventListener("click", async () => {
-try {
-authMessage.innerText = "";
+  forgotPasswordBtn.addEventListener("click", () => {
+    showAuthError("");
+    resetEmail.value = authEmail.value;
+    setAuthView("reset");
+  });
 
-if (!authEmail.value.trim()) {
-authMessage.innerText = "Enter your email first.";
-return;
-}
+  sendResetEmailBtn.addEventListener("click", async () => {
+    try {
+      showAuthError("");
 
-await auth.sendPasswordResetEmail(authEmail.value.trim(), {
-url: "https://truthai.online/reset-password.html",
-handleCodeInApp: true
-});
+      if (!resetEmail.value.trim()) {
+        showAuthError("Enter your email.");
+        return;
+      }
 
-authMessage.innerText = "Password reset email sent.";
-} catch (error) {
-authMessage.innerText = friendlyAuthError(error);
-}
-});
+      sendResetEmailBtn.disabled = true;
+      sendResetEmailBtn.innerText = "Sending...";
+
+      await auth.sendPasswordResetEmail(resetEmail.value.trim(), {
+        url: "https://truthai.online/reset-password.html",
+        handleCodeInApp: true
+      });
+
+      showAuthSuccess("Password reset email sent.");
+    } catch (error) {
+      showAuthError(friendlyAuthError(error));
+    } finally {
+      sendResetEmailBtn.disabled = false;
+      sendResetEmailBtn.innerText = "Send Reset Link";
+    }
+  });
 
   showSaveScanBtn.addEventListener("click", () => {
     if (!currentUser || !isVerifiedUser(currentUser)) {

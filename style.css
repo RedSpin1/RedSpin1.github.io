@@ -425,6 +425,38 @@ background: transparent;
 }
 
 
+#recentScansSearch {
+    width: 100%;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    box-sizing: border-box;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.18);
+    color: white;
+    font-size: 13px;
+    outline: none;
+}
+
+#recentScansSearch:focus {
+    border-color: #38bdf8;
+}
+
+#backToRecentScansBtn {
+    width: 100%;
+    margin: 0 0 12px;
+    padding: 8px 12px;
+    font-size: 13px;
+    background: rgba(255,255,255,0.06);
+    box-shadow: none;
+}
+
+#backToRecentScansBtn:hover {
+    transform: none;
+    box-shadow: none;
+    background: rgba(56, 189, 248, 0.16);
+}
+
 #resetMessage {
     min-height: 18px;
     margin-top: 14px;

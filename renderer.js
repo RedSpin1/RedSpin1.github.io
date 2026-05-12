@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const recentScansSidebar = document.getElementById("recentScansSidebar");
   const recentScansSearch = document.getElementById("recentScansSearch");
+  const scanSearchBtn = document.getElementById("scanSearchBtn");
   const backToRecentScansBtn = document.getElementById("backToRecentScansBtn");
   const recentScansTitle = document.getElementById("recentScansTitle");
   const recentScansList = document.getElementById("recentScansList");
@@ -629,15 +630,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  recentScansSearch.addEventListener("input", () => {
+  function runScanSearch() {
     const query = recentScansSearch.value.trim().toLowerCase();
 
-    if (!query) {
-      recentScansTitle.innerText = "Recent Scans";
-      backToRecentScansBtn.classList.add("hidden");
-      renderScansList(loadedScans);
-      return;
-    }
+    if (!query) return;
 
     recentScansTitle.innerText = "Search Results";
     backToRecentScansBtn.classList.remove("hidden");
@@ -655,6 +651,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     renderScansList(filtered);
+  }
+
+  scanSearchBtn.addEventListener("click", runScanSearch);
+
+  recentScansSearch.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      runScanSearch();
+    }
   });
 
   backToRecentScansBtn.addEventListener("click", () => {

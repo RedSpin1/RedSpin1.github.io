@@ -376,8 +376,8 @@ textarea::-webkit-scrollbar-thumb:hover,
         margin-bottom 0.28s ease;
 }
 
-#scanSearchTop.search-open {
-    max-height: 50px;
+#recentScansSidebar.search-active #scanSearchTop {
+    max-height: 52px;
     opacity: 1;
     transform: translateY(0);
     margin-bottom: 14px;
@@ -400,6 +400,7 @@ textarea::-webkit-scrollbar-thumb:hover,
 .scan-search-wrapper {
     position: relative;
     flex: 1;
+    min-width: 0;
 }
 
 #recentScansSearch {
@@ -471,7 +472,7 @@ textarea::-webkit-scrollbar-thumb:hover,
     background: transparent;
 }
 
-#scanSearchBtn.search-hidden {
+#recentScansSidebar.search-active #scanSearchBtn {
     opacity: 0;
     pointer-events: none;
     transform: scale(0.85);
@@ -480,16 +481,17 @@ textarea::-webkit-scrollbar-thumb:hover,
 #backToRecentScansBtn {
     margin: 0;
     padding: 0;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: transparent;
     border: none;
     box-shadow: none;
-    color: rgba(255,255,255,0.72);
-    font-size: 24px;
+    color: rgba(255,255,255,0.8);
+    font-size: 28px;
     line-height: 1;
     flex-shrink: 0;
 }

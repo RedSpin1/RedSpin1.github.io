@@ -38,10 +38,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const accountEmail = document.getElementById("accountEmail");
 
   const recentScansSidebar = document.getElementById("recentScansSidebar");
-  const recentScansSearch = document.getElementById("recentScansSearch");
-  const scanSearchBtn = document.getElementById("scanSearchBtn");
   const scanSearchTop = document.getElementById("scanSearchTop");
-  const scanSearchBtnInside = document.getElementById("scanSearchBtnInside");
+  const recentScansSearch = document.getElementById("recentScansSearch");
   const backToRecentScansBtn = document.getElementById("backToRecentScansBtn");
   const recentScansTitle = document.getElementById("recentScansTitle");
   const recentScansList = document.getElementById("recentScansList");
@@ -655,8 +653,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function openScanSearch() {
-    scanSearchTop.classList.add("search-open");
-    scanSearchBtn.classList.add("search-hidden");
+    recentScansSidebar.classList.add("search-active");
 
     setTimeout(() => {
       recentScansSearch.focus();
@@ -666,8 +663,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function closeScanSearch() {
     recentScansSearch.value = "";
     recentScansTitle.innerText = "Recent Scans";
-    scanSearchTop.classList.remove("search-open");
-    scanSearchBtn.classList.remove("search-hidden");
+    recentScansSidebar.classList.remove("search-active");
     renderScansList(loadedScans);
   }
 

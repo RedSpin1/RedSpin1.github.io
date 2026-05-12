@@ -399,7 +399,7 @@ textarea::-webkit-scrollbar-thumb:hover,
 
 .scan-search-wrapper {
     position: relative;
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
 }
 
@@ -478,29 +478,48 @@ textarea::-webkit-scrollbar-thumb:hover,
     transform: scale(0.85);
 }
 
-#backToRecentScansBtn {
-    margin: 0;
-    padding: 0;
-    width: 32px;
-    min-width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    color: rgba(255,255,255,0.8);
-    font-size: 28px;
-    line-height: 1;
-    flex-shrink: 0;
+\.scan-x-btn,
+#backToRecentScansBtn.scan-x-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    flex: 0 0 38px !important;
+
+    width: 38px !important;
+    height: 38px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    border-radius: 50% !important;
+
+    background: rgba(0,0,0,0.18) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+
+    box-shadow: none !important;
+
+    color: rgba(255,255,255,0.82) !important;
+
+    font-size: 22px !important;
+    line-height: 1 !important;
+
+    cursor: pointer !important;
+
+    position: static !important;
+
+    transition:
+        background 0.18s ease,
+        transform 0.18s ease,
+        color 0.18s ease !important;
 }
 
-#backToRecentScansBtn:hover {
-    color: white;
-    transform: scale(1.05);
-    box-shadow: none;
-    background: transparent;
+.scan-x-btn:hover,
+#backToRecentScansBtn.scan-x-btn:hover {
+    background: rgba(56, 189, 248, 0.16) !important;
+    color: white !important;
+    transform: scale(1.04) !important;
+    box-shadow: none !important;
 }
 
 .scan-item {

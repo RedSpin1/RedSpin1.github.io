@@ -19,6 +19,16 @@
     <button type="button" id="authButton">Login</button>
 
     <div id="recentScansSidebar" class="hidden">
+        <input 
+            type="text" 
+            id="recentScansSearch" 
+            placeholder="Search scans..."
+        >
+
+        <button type="button" id="backToRecentScansBtn" class="hidden">
+            ← Back
+        </button>
+
         <div id="recentScansTitle">Recent Scans</div>
         <div id="recentScansList"></div>
     </div>
@@ -64,12 +74,8 @@
             <div id="authResetView" class="hidden">
                 <h2>Reset Password</h2>
                 <p class="auth-small-text">Enter your email and we’ll send you a password reset link.</p>
-
                 <input type="email" id="resetEmail" class="auth-input" placeholder="Email">
-
-                <button type="button" id="sendResetEmailBtn" class="auth-main-btn">
-                    Send Reset Link
-                </button>
+                <button type="button" id="sendResetEmailBtn" class="auth-main-btn">Send Reset Link</button>
             </div>
 
             <div id="authVerifyView" class="hidden">
@@ -122,7 +128,7 @@
                 <button type="button" id="showSaveScanBtn">Save Scan</button>
 
                 <div id="saveScanForm" class="hidden">
-                    <input type="text" id="scanTitleInput" placeholder="Name this scan..." maxlength="25">
+                    <input type="text" id="scanTitleInput" placeholder="Name this scan..." maxlength="24">
                     <button type="button" id="confirmSaveScanBtn">Save</button>
                     <div id="saveScanMessage"></div>
                 </div>

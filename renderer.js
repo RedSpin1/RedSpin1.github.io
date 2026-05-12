@@ -654,13 +654,24 @@ document.addEventListener("DOMContentLoaded", () => {
     renderScansList(filtered);
   }
 
-  scanSearchBtn.addEventListener("click", () => {
+  function openScanSearch() {
     scanSearchTop.classList.add("search-open");
+    scanSearchBtn.classList.add("search-hidden");
 
     setTimeout(() => {
       recentScansSearch.focus();
     }, 120);
-  });
+  }
+
+  function closeScanSearch() {
+    recentScansSearch.value = "";
+    recentScansTitle.innerText = "Recent Scans";
+    scanSearchTop.classList.remove("search-open");
+    scanSearchBtn.classList.remove("search-hidden");
+    renderScansList(loadedScans);
+  }
+
+  scanSearchBtn.addEventListener("click", openScanSearch);
 
   scanSearchBtnInside.addEventListener("click", runScanSearch);
 
@@ -670,12 +681,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  backToRecentScansBtn.addEventListener("click", () => {
-    recentScansSearch.value = "";
-    recentScansTitle.innerText = "Recent Scans";
-    scanSearchTop.classList.remove("search-open");
-    renderScansList(loadedScans);
-  });
+  backToRecentScansBtn.addEventListener("click", closeScanSearch);
 
   textInput.addEventListener("input", () => {
     updateWordCount();

@@ -19,15 +19,16 @@
     <button type="button" id="authButton">Login</button>
 
     <div id="recentScansSidebar" class="hidden">
-        <input 
-            type="text" 
-            id="recentScansSearch" 
-            placeholder="Search scans..."
-        >
+        <button type="button" id="backToRecentScansBtn" class="scan-back-btn hidden">‹</button>
 
-        <button type="button" id="backToRecentScansBtn" class="hidden">
-            ← Back
-        </button>
+        <div class="scan-search-wrapper">
+            <button type="button" id="scanSearchBtn" aria-label="Search scans">⌕</button>
+            <input 
+                type="text" 
+                id="recentScansSearch" 
+                placeholder="Search scans..."
+            >
+        </div>
 
         <div id="recentScansTitle">Recent Scans</div>
         <div id="recentScansList"></div>

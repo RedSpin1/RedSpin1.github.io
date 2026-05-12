@@ -359,15 +359,29 @@ textarea::-webkit-scrollbar-thumb:hover,
     z-index: 1000;
 }
 
+.scan-search-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
 .scan-search-wrapper {
     position: relative;
+    width: 34px;
+    height: 34px;
+    transition: width 0.25s ease;
+}
+
+.scan-search-wrapper.active {
     width: 100%;
-    margin-bottom: 12px;
 }
 
 #recentScansSearch {
     width: 100%;
-    padding: 10px 12px 10px 34px;
+    height: 34px;
+    padding: 0 12px 0 36px;
     box-sizing: border-box;
     border-radius: 12px;
     border: 1px solid rgba(255,255,255,0.1);
@@ -386,14 +400,20 @@ textarea::-webkit-scrollbar-thumb:hover,
     left: 10px;
     top: 50%;
     transform: translateY(-50%);
+    z-index: 2;
     margin: 0;
     padding: 0;
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: transparent;
     border: none;
     box-shadow: none;
-    color: rgba(255,255,255,0.6);
-    font-size: 15px;
-    z-index: 2;
+    color: rgba(255,255,255,0.7);
+    font-size: 14px;
+    line-height: 1;
 }
 
 #scanSearchBtn:hover {
@@ -403,24 +423,22 @@ textarea::-webkit-scrollbar-thumb:hover,
     background: transparent;
 }
 
-.scan-back-btn {
-    position: absolute;
-    top: 10px;
-    left: 10px;
+.scan-close-btn {
     margin: 0;
     padding: 0;
     width: 28px;
     height: 28px;
     border-radius: 50%;
     background: transparent;
-    color: rgba(255,255,255,0.72);
-    font-size: 30px;
-    line-height: 22px;
+    border: none;
     box-shadow: none;
-    z-index: 2;
+    color: rgba(255,255,255,0.72);
+    font-size: 24px;
+    line-height: 1;
+    flex-shrink: 0;
 }
 
-.scan-back-btn:hover {
+.scan-close-btn:hover {
     color: white;
     transform: scale(1.05);
     box-shadow: none;

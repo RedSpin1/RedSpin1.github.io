@@ -40,7 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const recentScansSidebar = document.getElementById("recentScansSidebar");
   const recentScansSearch = document.getElementById("recentScansSearch");
   const scanSearchBtn = document.getElementById("scanSearchBtn");
-  const scanSearchWrapper = document.querySelector(".scan-search-wrapper");
+  const scanSearchTop = document.getElementById("scanSearchTop");
+  const scanSearchBtnInside = document.getElementById("scanSearchBtnInside");
   const backToRecentScansBtn = document.getElementById("backToRecentScansBtn");
   const recentScansTitle = document.getElementById("recentScansTitle");
   const recentScansList = document.getElementById("recentScansList");
@@ -637,7 +638,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!query) return;
 
     recentScansTitle.innerText = "Search Results";
-    backToRecentScansBtn.classList.remove("hidden");
 
     const filtered = loadedScans.filter(scan => {
       const title = (scan.title || "").toLowerCase();
@@ -655,11 +655,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   scanSearchBtn.addEventListener("click", () => {
-    recentScansSearch.classList.remove("hidden");
-    backToRecentScansBtn.classList.remove("hidden");
-    scanSearchWrapper.classList.add("active");
-    recentScansSearch.focus();
+    scanSearchTop.classList.add("search-open");
+
+    setTimeout(() => {
+      recentScansSearch.focus();
+    }, 120);
   });
+
+  scanSearchBtnInside.addEventListener("click", runScanSearch);
 
   recentScansSearch.addEventListener("keydown", event => {
     if (event.key === "Enter") {
@@ -669,10 +672,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   backToRecentScansBtn.addEventListener("click", () => {
     recentScansSearch.value = "";
-    recentScansSearch.classList.add("hidden");
-    backToRecentScansBtn.classList.add("hidden");
-    scanSearchWrapper.classList.remove("active");
     recentScansTitle.innerText = "Recent Scans";
+    scanSearchTop.classList.remove("search-open");
     renderScansList(loadedScans);
   });
 

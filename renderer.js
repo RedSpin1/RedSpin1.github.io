@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const recentScansSidebar = document.getElementById("recentScansSidebar");
   const recentScansSearch = document.getElementById("recentScansSearch");
   const scanSearchBtn = document.getElementById("scanSearchBtn");
+  const scanSearchWrapper = document.querySelector(".scan-search-wrapper");
   const backToRecentScansBtn = document.getElementById("backToRecentScansBtn");
   const recentScansTitle = document.getElementById("recentScansTitle");
   const recentScansList = document.getElementById("recentScansList");
@@ -653,7 +654,12 @@ document.addEventListener("DOMContentLoaded", () => {
     renderScansList(filtered);
   }
 
-  scanSearchBtn.addEventListener("click", runScanSearch);
+  scanSearchBtn.addEventListener("click", () => {
+    recentScansSearch.classList.remove("hidden");
+    backToRecentScansBtn.classList.remove("hidden");
+    scanSearchWrapper.classList.add("active");
+    recentScansSearch.focus();
+  });
 
   recentScansSearch.addEventListener("keydown", event => {
     if (event.key === "Enter") {
@@ -663,8 +669,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   backToRecentScansBtn.addEventListener("click", () => {
     recentScansSearch.value = "";
-    recentScansTitle.innerText = "Recent Scans";
+    recentScansSearch.classList.add("hidden");
     backToRecentScansBtn.classList.add("hidden");
+    scanSearchWrapper.classList.remove("active");
+    recentScansTitle.innerText = "Recent Scans";
     renderScansList(loadedScans);
   });
 

@@ -16,12 +16,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const authBackBtn = document.getElementById("authBackBtn");
   const authLoginView = document.getElementById("authLoginView");
   const authSignupView = document.getElementById("authSignupView");
+  const authResetView = document.getElementById("authResetView");
   const authVerifyView = document.getElementById("authVerifyView");
   const authAccountView = document.getElementById("authAccountView");
   const googleLoginBtn = document.getElementById("googleLoginBtn");
   const emailLoginBtn = document.getElementById("emailLoginBtn");
+  const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
   const showSignupBtn = document.getElementById("showSignupBtn");
   const emailSignupBtn = document.getElementById("emailSignupBtn");
+  const sendResetEmailBtn = document.getElementById("sendResetEmailBtn");
   const backToLoginBtn = document.getElementById("backToLoginBtn");
   const logoutBtn = document.getElementById("logoutBtn");
   const authEmail = document.getElementById("authEmail");
@@ -29,13 +32,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const signupName = document.getElementById("signupName");
   const signupEmail = document.getElementById("signupEmail");
   const signupPassword = document.getElementById("signupPassword");
+  const resetEmail = document.getElementById("resetEmail");
   const authMessage = document.getElementById("authMessage");
   const accountName = document.getElementById("accountName");
   const accountEmail = document.getElementById("accountEmail");
 
   const recentScansSidebar = document.getElementById("recentScansSidebar");
-  const recentScansList = document.getElementById("recentScansList");
+  const recentScansSearch = document.getElementById("recentScansSearch");
+  const backToRecentScansBtn = document.getElementById("backToRecentScansBtn");
   const recentScansTitle = document.getElementById("recentScansTitle");
+  const recentScansList = document.getElementById("recentScansList");
 
   const saveScanArea = document.getElementById("saveScanArea");
   const showSaveScanBtn = document.getElementById("showSaveScanBtn");
@@ -43,13 +49,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const scanTitleInput = document.getElementById("scanTitleInput");
   const confirmSaveScanBtn = document.getElementById("confirmSaveScanBtn");
   const saveScanMessage = document.getElementById("saveScanMessage");
-  const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
-  const authResetView = document.getElementById("authResetView");
-  const resetEmail = document.getElementById("resetEmail");
-  const sendResetEmailBtn = document.getElementById("sendResetEmailBtn");
-  const recentScansSearch = document.getElementById("recentScansSearch");
-  const backToRecentScansBtn = document.getElementById("backToRecentScansBtn");
-
 
   let lastWordCount = 0;
   let currentUser = null;
@@ -97,6 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "ppl", "pls", "plz", "srs", "thx", "thxss", "kthx", "kthxthx", "brb", "btw", "smh", "tbh",
     "tv", "dvd", "cd", "dj", "bc", "nth", "jkr", "mjk", "blm", "cnn", "bbc", "mtv" , "msnbc", "nbc" , "cmd" 
   ]);
+
   function isRealWord(str) {
     const lower = str.toLowerCase();
     if (/(.)\1\1\1/.test(lower)) return false;
@@ -150,12 +150,22 @@ document.addEventListener("DOMContentLoaded", () => {
     return signedInWithGoogle || user.emailVerified;
   }
 
+  function showAuthError(message) {
+    authMessage.style.color = "#f87171";
+    authMessage.innerText = message;
+  }
+
+  function showAuthSuccess(message) {
+    authMessage.style.color = "#34d399";
+    authMessage.innerText = message;
+  }
+
   function setAuthView(view) {
     authLoginView.classList.add("hidden");
     authSignupView.classList.add("hidden");
+    authResetView.classList.add("hidden");
     authVerifyView.classList.add("hidden");
     authAccountView.classList.add("hidden");
-    authResetView.classList.add("hidden");
     authBackBtn.classList.add("hidden");
 
     if (view === "login") authLoginView.classList.remove("hidden");
@@ -163,19 +173,19 @@ document.addEventListener("DOMContentLoaded", () => {
       authSignupView.classList.remove("hidden");
       authBackBtn.classList.remove("hidden");
     }
+    if (view === "reset") {
+      authResetView.classList.remove("hidden");
+      authBackBtn.classList.remove("hidden");
+    }
     if (view === "verify") {
       authVerifyView.classList.remove("hidden");
       authBackBtn.classList.remove("hidden");
     }
     if (view === "account") authAccountView.classList.remove("hidden");
-    if (view === "reset") {
-      authResetView.classList.remove("hidden");
-      authBackBtn.classList.remove("hidden");
-    }
   }
 
   function openAuthModal(message = "") {
-    authMessage.innerText = message;
+    showAuthError(message);
 
     if (currentUser) {
       accountName.innerText = currentUser.displayName || "No name set";
@@ -208,16 +218,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (code === "auth/too-many-requests") return "Too many attempts. Try again later.";
 
     return "Something went wrong. Please try again.";
-  }
-
-  function showAuthError(message) {
-    authMessage.style.color = "#f87171";
-    authMessage.innerText = message;
-  }
-
-  function showAuthSuccess(message) {
-    authMessage.style.color = "#34d399";
-    authMessage.innerText = message;
   }
 
   function updateAuthUI() {
@@ -257,15 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
     saveScanMessage.innerText = "";
   }
 
-  function renderScansList(scans) {
-    recentScansList.innerHTML = "";
-
-    scans.forEach(scan => {
-      addScanToSidebar(scan);
-    });
-  }
-
-  function addScanToSidebar(scan, newest = false) {
+  function addScanToSidebar(scan) {
     const button = document.createElement("button");
     button.className = "scan-item";
     button.innerText = scan.title || "Untitled Scan";
@@ -288,17 +280,24 @@ document.addEventListener("DOMContentLoaded", () => {
       updateUploadButton();
     });
 
-    if (newest) {
-      recentScansList.prepend(button);
-    } else {
-      recentScansList.appendChild(button);
-    }
+    recentScansList.appendChild(button);
+  }
+
+  function renderScansList(scans) {
+    recentScansList.innerHTML = "";
+
+    scans.forEach(scan => {
+      addScanToSidebar(scan);
+    });
   }
 
   async function loadRecentScans() {
     if (!currentUser || !isVerifiedUser(currentUser)) return;
 
     recentScansList.innerHTML = "";
+    recentScansSearch.value = "";
+    recentScansTitle.innerText = "Recent Scans";
+    backToRecentScansBtn.classList.add("hidden");
     recentScansSidebar.classList.remove("hidden");
 
     const snapshot = await db.collection("scans")
@@ -324,13 +323,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const cleanTitle = title.trim();
 
-    if (cleanTitle.length > 24) {
-      saveScanMessage.innerText = "Scan names must be under 24 characters.";
+    if (!cleanTitle) {
+      saveScanMessage.innerText = "Enter a scan name.";
       return;
     }
 
-    if (!cleanTitle) {
-      saveScanMessage.innerText = "Enter a scan name.";
+    if (cleanTitle.length > 24) {
+      saveScanMessage.innerText = "Scan names must be under 24 characters.";
       return;
     }
 
@@ -356,7 +355,12 @@ document.addEventListener("DOMContentLoaded", () => {
     loadedScans.unshift(savedScan);
     renderScansList(loadedScans);
 
+    recentScansTitle.innerText = "Recent Scans";
+    recentScansSearch.value = "";
+    backToRecentScansBtn.classList.add("hidden");
+
     currentScanSaved = true;
+    saveScanMessage.style.color = "#34d399";
     saveScanMessage.innerText = "Saved.";
     showSaveScanBtn.classList.add("hidden");
     saveScanForm.classList.add("hidden");
@@ -440,6 +444,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (user && isVerifiedUser(user)) {
       loadRecentScans();
     } else {
+      loadedScans = [];
       recentScansList.innerHTML = "";
       recentScansSidebar.classList.add("hidden");
       resetSaveScanUI();
@@ -448,12 +453,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   authButton.addEventListener("click", () => openAuthModal());
   closeAuthModal.addEventListener("click", () => closeModal());
+
   authBackBtn.addEventListener("click", () => {
-    authMessage.innerText = "";
+    showAuthError("");
     setAuthView("login");
   });
+
   backToLoginBtn.addEventListener("click", () => {
-    authMessage.innerText = "";
+    showAuthError("");
     setAuthView("login");
   });
 
@@ -466,11 +473,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       authBusy = true;
-      authMessage.innerText = "";
+      showAuthError("");
       await auth.signInWithPopup(googleProvider);
       closeModal();
     } catch (error) {
-      authMessage.innerText = friendlyAuthError(error);
+      showAuthError(friendlyAuthError(error));
     } finally {
       authBusy = false;
     }
@@ -478,7 +485,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   emailLoginBtn.addEventListener("click", async () => {
     try {
-      authMessage.innerText = "";
+      showAuthError("");
       await auth.signInWithEmailAndPassword(authEmail.value, authPassword.value);
       await auth.currentUser.reload();
       currentUser = auth.currentUser;
@@ -486,88 +493,15 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!isVerifiedUser(currentUser)) {
         await auth.signOut();
         setAuthView("verify");
-        authMessage.innerText = "Please verify your email before logging in.";
+        showAuthError("Please verify your email before logging in.");
         return;
       }
 
       closeModal();
     } catch (error) {
-      authMessage.innerText = friendlyAuthError(error);
+      showAuthError(friendlyAuthError(error));
     }
   });
-
-  showSignupBtn.addEventListener("click", () => {
-    authMessage.innerText = "";
-    signupName.value = "";
-    signupEmail.value = authEmail.value;
-    signupPassword.value = "";
-    setAuthView("signup");
-  });
-
-  emailSignupBtn.addEventListener("click", async () => {
-  if (authBusy) return;
-
-  try {
-    authBusy = true;
-
-    emailSignupBtn.disabled = true;
-    emailSignupBtn.innerText = "Creating...";
-
-    showAuthError("");
-
-    const name = signupName.value.trim();
-    const email = signupEmail.value.trim();
-
-    if (!name) {
-      showAuthError("Enter your name.");
-      return;
-    }
-
-    if (!email) {
-      showAuthError("Enter your email.");
-      return;
-    }
-
-    const methods = await auth.fetchSignInMethodsForEmail(email);
-
-    if (methods.includes("google.com")) {
-      showAuthError("This email is already connected to Google. Please continue with Google.");
-      return;
-    }
-
-    if (methods.includes("password")) {
-      showAuthError("An account already exists with that email.");
-      return;
-    }
-
-    const credential = await auth.createUserWithEmailAndPassword(
-      email,
-      signupPassword.value
-    );
-
-    await credential.user.updateProfile({
-      displayName: name
-    });
-
-    await credential.user.sendEmailVerification();
-    await auth.signOut();
-
-    setAuthView("verify");
-    showAuthSuccess("Verification email sent. Check your inbox.");
-  } catch (error) {
-    showAuthError(friendlyAuthError(error));
-  } finally {
-    authBusy = false;
-    emailSignupBtn.disabled = false;
-    emailSignupBtn.innerText = "Create Account";
-  }
-});
-
-  logoutBtn.addEventListener("click", async () => {
-    await auth.signOut();
-    closeModal();
-  });
-
 
   forgotPasswordBtn.addEventListener("click", () => {
     showAuthError("");
@@ -575,11 +509,103 @@ document.addEventListener("DOMContentLoaded", () => {
     setAuthView("reset");
   });
 
-authMessage.innerText = "Password reset email sent.";
-} catch (error) {
-authMessage.innerText = friendlyAuthError(error);
-}
-});
+  sendResetEmailBtn.addEventListener("click", async () => {
+    try {
+      showAuthError("");
+
+      if (!resetEmail.value.trim()) {
+        showAuthError("Enter your email.");
+        return;
+      }
+
+      sendResetEmailBtn.disabled = true;
+      sendResetEmailBtn.innerText = "Sending...";
+
+      await auth.sendPasswordResetEmail(resetEmail.value.trim(), {
+        url: "https://truthai.online/reset-password.html",
+        handleCodeInApp: true
+      });
+
+      showAuthSuccess("Password reset email sent.");
+    } catch (error) {
+      showAuthError(friendlyAuthError(error));
+    } finally {
+      sendResetEmailBtn.disabled = false;
+      sendResetEmailBtn.innerText = "Send Reset Link";
+    }
+  });
+
+  showSignupBtn.addEventListener("click", () => {
+    showAuthError("");
+    signupName.value = "";
+    signupEmail.value = authEmail.value;
+    signupPassword.value = "";
+    setAuthView("signup");
+  });
+
+  emailSignupBtn.addEventListener("click", async () => {
+    if (authBusy) return;
+
+    try {
+      authBusy = true;
+
+      emailSignupBtn.disabled = true;
+      emailSignupBtn.innerText = "Creating...";
+
+      showAuthError("");
+
+      const name = signupName.value.trim();
+      const email = signupEmail.value.trim();
+
+      if (!name) {
+        showAuthError("Enter your name.");
+        return;
+      }
+
+      if (!email) {
+        showAuthError("Enter your email.");
+        return;
+      }
+
+      const methods = await auth.fetchSignInMethodsForEmail(email);
+
+      if (methods.includes("google.com")) {
+        showAuthError("This email is already connected to Google. Please continue with Google.");
+        return;
+      }
+
+      if (methods.includes("password")) {
+        showAuthError("An account already exists with that email.");
+        return;
+      }
+
+      const credential = await auth.createUserWithEmailAndPassword(
+        email,
+        signupPassword.value
+      );
+
+      await credential.user.updateProfile({
+        displayName: name
+      });
+
+      await credential.user.sendEmailVerification();
+      await auth.signOut();
+
+      setAuthView("verify");
+      showAuthSuccess("Verification email sent. Check your inbox.");
+    } catch (error) {
+      showAuthError(friendlyAuthError(error));
+    } finally {
+      authBusy = false;
+      emailSignupBtn.disabled = false;
+      emailSignupBtn.innerText = "Create Account";
+    }
+  });
+
+  logoutBtn.addEventListener("click", async () => {
+    await auth.signOut();
+    closeModal();
+  });
 
   showSaveScanBtn.addEventListener("click", () => {
     if (!currentUser || !isVerifiedUser(currentUser)) {
@@ -594,11 +620,48 @@ authMessage.innerText = friendlyAuthError(error);
 
   confirmSaveScanBtn.addEventListener("click", async () => {
     try {
+      saveScanMessage.style.color = "#475569";
       saveScanMessage.innerText = "";
       await saveScan(scanTitleInput.value);
     } catch {
+      saveScanMessage.style.color = "#f87171";
       saveScanMessage.innerText = "Could not save scan.";
     }
+  });
+
+  recentScansSearch.addEventListener("input", () => {
+    const query = recentScansSearch.value.trim().toLowerCase();
+
+    if (!query) {
+      recentScansTitle.innerText = "Recent Scans";
+      backToRecentScansBtn.classList.add("hidden");
+      renderScansList(loadedScans);
+      return;
+    }
+
+    recentScansTitle.innerText = "Search Results";
+    backToRecentScansBtn.classList.remove("hidden");
+
+    const filtered = loadedScans.filter(scan => {
+      const title = (scan.title || "").toLowerCase();
+      const inputText = (scan.inputText || "").toLowerCase();
+      const resultText = (scan.resultText || "").toLowerCase();
+
+      return (
+        title.includes(query) ||
+        inputText.includes(query) ||
+        resultText.includes(query)
+      );
+    });
+
+    renderScansList(filtered);
+  });
+
+  backToRecentScansBtn.addEventListener("click", () => {
+    recentScansSearch.value = "";
+    recentScansTitle.innerText = "Recent Scans";
+    backToRecentScansBtn.classList.add("hidden");
+    renderScansList(loadedScans);
   });
 
   textInput.addEventListener("input", () => {
@@ -727,38 +790,6 @@ authMessage.innerText = friendlyAuthError(error);
 
     textInput.focus();
     updateUploadButton();
-  });
-
-
-  recentScansSearch.addEventListener("input", () => {
-    const query = recentScansSearch.value.trim().toLowerCase();
-
-    if (!query) {
-      recentScansTitle.innerText = "Recent Scans";
-      backToRecentScansBtn.classList.add("hidden");
-      renderScansList(loadedScans);
-      return;
-    }
-
-    recentScansTitle.innerText = "Search Results";
-    backToRecentScansBtn.classList.remove("hidden");
-
-    const filtered = loadedScans.filter(scan => {
-      const title = (scan.title || "").toLowerCase();
-      const inputText = (scan.inputText || "").toLowerCase();
-      const resultText = (scan.resultText || "").toLowerCase();
-
-      return title.includes(query) || inputText.includes(query) || resultText.includes(query);
-    });
-
-    renderScansList(filtered);
-  });
-
-  backToRecentScansBtn.addEventListener("click", () => {
-    recentScansSearch.value = "";
-    recentScansTitle.innerText = "Recent Scans";
-    backToRecentScansBtn.classList.add("hidden");
-    renderScansList(loadedScans);
   });
 
   updateUploadButton();

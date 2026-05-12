@@ -408,7 +408,7 @@ textarea::-webkit-scrollbar-thumb:hover,
     height: 38px;
     padding: 0 14px 0 38px;
     box-sizing: border-box;
-    border-radius: 12px;
+    border-radius: 999px;
     border: 1px solid rgba(255,255,255,0.1);
     background: rgba(0,0,0,0.18);
     color: white;
@@ -478,7 +478,7 @@ textarea::-webkit-scrollbar-thumb:hover,
     transform: scale(0.85);
 }
 
-\.scan-x-btn,
+.scan-x-btn,
 #backToRecentScansBtn.scan-x-btn {
     display: flex !important;
     align-items: center !important;
@@ -525,18 +525,24 @@ textarea::-webkit-scrollbar-thumb:hover,
 .scan-item {
     width: 100%;
     margin: 0 0 8px;
-    padding: 10px 12px;
+    padding: 12px 14px;
     text-align: left;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.06);
-    color: rgba(255,255,255,0.85);
+    border-radius: 999px;
+    background: rgba(0,0,0,0.16);
+    color: rgba(255,255,255,0.86);
     border: 1px solid rgba(255,255,255,0.08);
     font-size: 13px;
     box-shadow: none;
+    cursor: pointer;
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
 }
 
 .scan-item:hover {
     background: rgba(56, 189, 248, 0.16);
+    border-color: rgba(56, 189, 248, 0.22);
     transform: none;
     box-shadow: none;
 }

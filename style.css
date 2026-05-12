@@ -478,7 +478,7 @@ textarea::-webkit-scrollbar-thumb:hover,
     transform: scale(0.85);
 }
 
-.scan-x-btn,
+\.scan-x-btn,
 #backToRecentScansBtn.scan-x-btn {
     display: flex !important;
     align-items: center !important;

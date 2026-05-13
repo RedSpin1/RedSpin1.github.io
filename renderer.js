@@ -154,6 +154,103 @@ document.addEventListener("DOMContentLoaded", () => {
     return signedInWithGoogle || user.emailVerified;
   }
 
+  function normalizeNameSpaces(name) {
+    return name.trim().replace(/\s+/g, " ");
+  }
+
+  function getFirstName(fullName) {
+    return normalizeNameSpaces(fullName).split(" ")[0];
+  }
+
+  function containsBlockedNameWord(name) {
+    const blockedWords = [
+      "nigga",
+      "nigger",
+      "penis",
+      "vagina",
+      "pussy",
+      "cunt",
+      "butt",
+      "asshole",
+      "cock",
+      "chink",
+      "beaner",
+      "ass",
+      "fuck",
+      "fucker",
+      "dick",
+      "puta"
+    ];
+
+    const normalized = name.toLowerCase();
+
+    return blockedWords.some(word =>
+      normalized.includes(word)
+    );
+  }
+
+  function validateFullName(fullName) {
+    const cleanName = normalizeNameSpaces(fullName);
+
+    if (!cleanName) {
+      return "Enter your name.";
+    }
+
+    if (cleanName.length > 24) {
+      return "Name must be 24 characters or less.";
+    }
+
+    const spaces = (cleanName.match(/ /g) || []).length;
+
+    if (spaces > 4) {
+      return "Name can only contain up to 4 spaces.";
+    }
+
+    const hyphens = (cleanName.match(/-/g) || []).length;
+
+    if (hyphens > 1) {
+      return "Name can only contain one hyphen.";
+    }
+
+    if (!/^[A-Za-z -]+$/.test(cleanName)) {
+      return "Name can only contain letters.";
+    }
+
+    if (containsBlockedNameWord(cleanName)) {
+      return "This name violates our guidelines.";
+    }
+
+    return "";
+  }
+
+  async function saveUserProfile(user, fullName) {
+    const cleanName = normalizeNameSpaces(fullName);
+
+    await db.collection("users").doc(user.uid).set({
+      fullName: cleanName,
+      firstName: getFirstName(cleanName),
+      email: user.email || "",
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  }
+
+  async function getAccountDisplayName(user) {
+    if (!user) return "No name set";
+
+    try {
+      const doc = await db.collection("users").doc(user.uid).get();
+
+      if (doc.exists && doc.data().fullName) {
+        return doc.data().fullName;
+      }
+    } catch {
+      // Fall back to Firebase Auth displayName below.
+    }
+
+    return user.displayName || "No name set";
+  }
+
+
   function showAuthError(message) {
     authMessage.style.color = "#f87171";
     authMessage.innerText = message;
@@ -188,11 +285,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (view === "account") authAccountView.classList.remove("hidden");
   }
 
-  function openAuthModal(message = "") {
+  async function openAuthModal(message = "") {
     showAuthError(message);
 
     if (currentUser) {
-      accountName.innerText = currentUser.displayName || "No name set";
+      accountName.innerText = await getAccountDisplayName(currentUser);
       accountEmail.innerText = currentUser.email || "Logged in";
       setAuthView("account");
     } else {
@@ -224,10 +321,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return "Something went wrong. Please try again.";
   }
 
-  function updateAuthUI() {
+  async function updateAuthUI() {
     if (currentUser) {
       authButton.innerText = "Account";
-      accountName.innerText = currentUser.displayName || "No name set";
+      accountName.innerText = await getAccountDisplayName(currentUser);
       accountEmail.innerText = currentUser.email || "Logged in";
     } else {
       authButton.innerText = "Login";
@@ -488,6 +585,11 @@ document.addEventListener("DOMContentLoaded", () => {
       authBusy = true;
       showAuthError("");
       await auth.signInWithPopup(googleProvider);
+
+      if (auth.currentUser?.displayName) {
+        await saveUserProfile(auth.currentUser, auth.currentUser.displayName);
+      }
+
       closeModal();
     } catch (error) {
       showAuthError(friendlyAuthError(error));
@@ -567,11 +669,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       showAuthError("");
 
-      const name = signupName.value.trim();
+      const fullName = normalizeNameSpaces(signupName.value);
+      const nameError = validateFullName(fullName);
       const email = signupEmail.value.trim();
 
-      if (!name) {
-        showAuthError("Enter your name.");
+      if (nameError) {
+        showAuthError(nameError);
         return;
       }
 
@@ -598,8 +701,10 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
       await credential.user.updateProfile({
-        displayName: name
+        displayName: getFirstName(fullName)
       });
+
+      await saveUserProfile(credential.user, fullName);
 
       await credential.user.sendEmailVerification();
       await auth.signOut();

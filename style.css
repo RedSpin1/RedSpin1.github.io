@@ -591,15 +591,15 @@ textarea::-webkit-scrollbar-thumb:hover,
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 14px;
-    position: relative;
+    gap: 18px;
 }
 
 .google-btn-logo {
     width: 18px;
     height: 18px;
     object-fit: contain;
-    position: relative;
-    top: 1px;
     flex-shrink: 0;
+    position: relative;
+    top: 0;
+    transform: translateY(0.5px);
 }

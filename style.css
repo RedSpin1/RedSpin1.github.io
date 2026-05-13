@@ -610,7 +610,7 @@ textarea::-webkit-scrollbar-thumb:hover,
 
     object-fit: contain;
 
-    left: 92px;
+    left: 90px;
     top: 49%;
 
     transform: translateY(-50%);

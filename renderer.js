@@ -39,6 +39,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const recentScansSidebar = document.getElementById("recentScansSidebar");
   const scanSearchTop = document.getElementById("scanSearchTop");
+  const scanSearchBtn = document.getElementById("scanSearchBtn");
+  const scanSearchBtnInside = document.getElementById("scanSearchBtnInside");
   const recentScansSearch = document.getElementById("recentScansSearch");
   const backToRecentScansBtn = document.getElementById("backToRecentScansBtn");
   const recentScansTitle = document.getElementById("recentScansTitle");
@@ -298,7 +300,7 @@ document.addEventListener("DOMContentLoaded", () => {
     recentScansList.innerHTML = "";
     recentScansSearch.value = "";
     recentScansTitle.innerText = "Recent Scans";
-    backToRecentScansBtn.classList.add("hidden");
+    recentScansSidebar.classList.remove("search-active");
     recentScansSidebar.classList.remove("hidden");
 
     const snapshot = await db.collection("scans")
@@ -358,7 +360,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     recentScansTitle.innerText = "Recent Scans";
     recentScansSearch.value = "";
-    backToRecentScansBtn.classList.add("hidden");
+    recentScansSidebar.classList.remove("search-active");
 
     currentScanSaved = true;
     saveScanMessage.style.color = "#34d399";

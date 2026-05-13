@@ -202,8 +202,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const spaces = (cleanName.match(/ /g) || []).length;
 
-    if (spaces > 4) {
-      return "Name can only contain up to 4 spaces.";
+    if (spaces !== 1) {
+      return "Enter your full name.";
     }
 
     const hyphens = (cleanName.match(/-/g) || []).length;

@@ -55,22 +55,6 @@ textarea:focus {
     border: 2px solid #38bdf8; 
 }
 
-
-#googleSignInBtn {
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 10px;
-}
-
-.google-btn-logo {
-width: 18px;
-height: 18px;
-object-fit: contain;
-flex-shrink: 0;
-}
-
-
 #uploadFileBtn {
     position: absolute;
     bottom: 15px;
@@ -499,31 +483,20 @@ textarea::-webkit-scrollbar-thumb:hover,
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-
     flex: 0 0 38px !important;
-
     width: 38px !important;
     height: 38px !important;
-
     margin: 0 !important;
     padding: 0 !important;
-
     border-radius: 50% !important;
-
     background: rgba(0,0,0,0.18) !important;
     border: 1px solid rgba(255,255,255,0.1) !important;
-
     box-shadow: none !important;
-
     color: rgba(255,255,255,0.82) !important;
-
     font-size: 22px !important;
     line-height: 1 !important;
-
     cursor: pointer !important;
-
     position: static !important;
-
     transition:
         background 0.18s ease,
         transform 0.18s ease,
@@ -610,4 +583,23 @@ textarea::-webkit-scrollbar-thumb:hover,
     color: #f87171;
     font-size: 13px;
     line-height: 1.4;
+}
+
+
+.google-auth-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    position: relative;
+}
+
+.google-btn-logo {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    position: relative;
+    top: 1px;
+    flex-shrink: 0;
 }

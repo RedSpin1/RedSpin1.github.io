@@ -203,7 +203,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const spaces = (cleanName.match(/ /g) || []).length;
 
     if (spaces !== 1) {
-      return "Enter your full name.";
+      return "Name must be first and last name.";
     }
 
     const hyphens = (cleanName.match(/-/g) || []).length;

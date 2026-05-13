@@ -587,19 +587,31 @@ textarea::-webkit-scrollbar-thumb:hover,
 
 
 .google-auth-btn {
+    position: relative;
+
     width: 100%;
+    height: 52px;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 18px;
+}
+
+.google-auth-btn span {
+    width: 100%;
+    text-align: center;
 }
 
 .google-btn-logo {
+    position: absolute;
+
     width: 18px;
     height: 18px;
+
     object-fit: contain;
-    flex-shrink: 0;
-    position: relative;
-    top: 0;
-    transform: translateY(0.5px);
+
+    left: 18px;
+    top: 50%;
+
+    transform: translateY(-50%);
 }

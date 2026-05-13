@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let lastWordCount = 0;
   let currentUser = null;
   let authBusy = false;
+  let modalMouseDownTarget = null;
   let currentScanData = null;
   let currentScanSaved = false;
   let loadedScans = [];
@@ -467,8 +468,17 @@ document.addEventListener("DOMContentLoaded", () => {
     setAuthView("login");
   });
 
+  authModal.addEventListener("mousedown", event => {
+    modalMouseDownTarget = event.target;
+  });
+
   authModal.addEventListener("click", event => {
-    if (event.target === authModal) closeModal();
+    const clickedBackdrop = event.target === authModal;
+    const startedBackdrop = modalMouseDownTarget === authModal;
+
+    if (clickedBackdrop && startedBackdrop) {
+      closeModal();
+    }
   });
 
   googleLoginBtn.addEventListener("click", async () => {

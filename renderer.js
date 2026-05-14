@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const sendResetEmailBtn = document.getElementById("sendResetEmailBtn");
   const backToLoginBtn = document.getElementById("backToLoginBtn");
   const logoutBtn = document.getElementById("logoutBtn");
+  const themeToggleBtn = document.getElementById("themeToggleBtn");
   const authEmail = document.getElementById("authEmail");
   const authPassword = document.getElementById("authPassword");
   const signupName = document.getElementById("signupName");
@@ -260,6 +261,44 @@ document.addEventListener("DOMContentLoaded", () => {
     authMessage.style.color = "#34d399";
     authMessage.innerText = message;
   }
+
+  function applyTheme(theme) {
+    const isLight = theme === "light";
+
+    document.body.classList.toggle("light-mode", isLight);
+
+    if (themeToggleBtn) {
+      themeToggleBtn.classList.toggle("active", isLight);
+    }
+  }
+
+  async function loadUserTheme(user) {
+    if (!user || !isVerifiedUser(user)) {
+      applyTheme("dark");
+      return;
+    }
+
+    try {
+      const doc = await db.collection("users").doc(user.uid).get();
+      const theme = doc.exists && doc.data().theme === "light" ? "light" : "dark";
+
+      applyTheme(theme);
+    } catch {
+      applyTheme("dark");
+    }
+  }
+
+  async function saveUserTheme(theme) {
+    if (!currentUser || !isVerifiedUser(currentUser)) return;
+
+    applyTheme(theme);
+
+    await db.collection("users").doc(currentUser.uid).set({
+      theme,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  }
+
 
   function setAuthView(view) {
     authLoginView.classList.add("hidden");
@@ -543,8 +582,10 @@ document.addEventListener("DOMContentLoaded", () => {
     updateAuthUI();
 
     if (user && isVerifiedUser(user)) {
+      loadUserTheme(user);
       loadRecentScans();
     } else {
+      applyTheme("dark");
       loadedScans = [];
       recentScansList.innerHTML = "";
       recentScansSidebar.classList.add("hidden");
@@ -723,6 +764,21 @@ emailLoginBtn.click();
       authBusy = false;
       emailSignupBtn.disabled = false;
       emailSignupBtn.innerText = "Create Account";
+    }
+  });
+
+
+  themeToggleBtn.addEventListener("click", async () => {
+    if (!currentUser || !isVerifiedUser(currentUser)) return;
+
+    const nextTheme = document.body.classList.contains("light-mode")
+      ? "dark"
+      : "light";
+
+    try {
+      await saveUserTheme(nextTheme);
+    } catch {
+      applyTheme("dark");
     }
   });
 

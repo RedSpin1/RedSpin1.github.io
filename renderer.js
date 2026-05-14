@@ -436,7 +436,11 @@ document.addEventListener("DOMContentLoaded", () => {
       updateWordCount();
       updateUploadButton();
     });
-authButton.addEventListener("click", () => openAuthModal());
+
+    recentScansList.appendChild(button);
+  }
+
+  authButton.addEventListener("click", () => openAuthModal());
   closeAuthModal.addEventListener("click", () => closeModal());
 
   authBackBtn.addEventListener("click", () => {
@@ -575,12 +579,12 @@ emailLoginBtn.click();
 
       const methods = await auth.fetchSignInMethodsForEmail(email);
 
-      if (methods.includes("google.com")) {
+      if (methods.some(method => method === "google.com")) {
         showAuthError("This email is already connected to Google. Please continue with Google.");
         return;
       }
 
-      if (methods.includes("password")) {
+      if (methods.some(method => method === "password")) {
         showAuthError("An account already exists with that email.");
         return;
       }

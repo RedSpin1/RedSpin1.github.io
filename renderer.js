@@ -618,6 +618,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  authPassword.addEventListener("keydown", event => {
+if (event.key === "Enter") {
+emailLoginBtn.click();
+}
+});
+
   forgotPasswordBtn.addEventListener("click", () => {
     showAuthError("");
     resetEmail.value = authEmail.value;

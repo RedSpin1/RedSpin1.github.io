@@ -882,6 +882,7 @@ emailLoginBtn.click();
 
   function closeScanSearch() {
     recentScansSearch.value = "";
+    clearSearchBtn.classList.remove("visible");
     recentScansTitle.innerText = "Recent Scans";
     recentScansSidebar.classList.remove("search-active");
     renderScansList(loadedScans);

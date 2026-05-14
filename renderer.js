@@ -44,7 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const scanSearchBtn = document.getElementById("scanSearchBtn");
   const scanSearchBtnInside = document.getElementById("scanSearchBtnInside");
   const recentScansSearch = document.getElementById("recentScansSearch");
-  const clearSearchBtn = document.getElementById("clearSearchBtn");
   const backToRecentScansBtn = document.getElementById("backToRecentScansBtn");
   const recentScansTitle = document.getElementById("recentScansTitle");
   const recentScansList = document.getElementById("recentScansList");
@@ -440,6 +439,176 @@ document.addEventListener("DOMContentLoaded", () => {
     recentScansList.appendChild(button);
   }
 
+  function renderScansList(scans) {
+    recentScansList.innerHTML = "";
+
+    scans.forEach(scan => {
+      addScanToSidebar(scan);
+    });
+  }
+
+  async function loadRecentScans() {
+    if (!currentUser || !isVerifiedUser(currentUser)) return;
+
+    recentScansList.innerHTML = "";
+    recentScansSearch.value = "";
+    recentScansTitle.innerText = "Recent Scans";
+    recentScansSidebar.classList.remove("search-active");
+    recentScansSidebar.classList.remove("hidden");
+
+    const snapshot = await db.collection("scans")
+      .where("userId", "==", currentUser.uid)
+      .orderBy("createdAt", "desc")
+      .limit(20)
+      .get();
+
+    loadedScans = [];
+
+    snapshot.forEach(doc => {
+      loadedScans.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+
+    renderScansList(loadedScans);
+  }
+
+  async function saveScan(title) {
+    if (!currentUser || !isVerifiedUser(currentUser) || !currentScanData) return;
+
+    const cleanTitle = title.trim();
+
+    if (!cleanTitle) {
+      saveScanMessage.innerText = "Enter a scan name.";
+      return;
+    }
+
+    if (cleanTitle.length > 24) {
+      saveScanMessage.innerText = "Scan names must be under 24 characters.";
+      return;
+    }
+
+    const scan = {
+      userId: currentUser.uid,
+      title: cleanTitle,
+      inputText: currentScanData.inputText,
+      resultText: currentScanData.resultText,
+      wordCount: currentScanData.wordCount,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    const docRef = await db.collection("scans").add(scan);
+
+    const savedScan = {
+      id: docRef.id,
+      title: cleanTitle,
+      inputText: currentScanData.inputText,
+      resultText: currentScanData.resultText,
+      wordCount: currentScanData.wordCount
+    };
+
+    loadedScans.unshift(savedScan);
+    renderScansList(loadedScans);
+
+    recentScansTitle.innerText = "Recent Scans";
+    recentScansSearch.value = "";
+    recentScansSidebar.classList.remove("search-active");
+
+    currentScanSaved = true;
+    saveScanMessage.style.color = "#34d399";
+    saveScanMessage.innerText = "Saved.";
+    showSaveScanBtn.classList.add("hidden");
+    saveScanForm.classList.add("hidden");
+  }
+
+  function showInvalidUpload() {
+    uploadFileBtn.classList.remove("hidden-upload");
+    uploadFileBtn.innerText = "Invalid Upload";
+    uploadFileBtn.style.color = "#f87171";
+    uploadFileBtn.style.pointerEvents = "none";
+
+    setTimeout(() => {
+      uploadFileBtn.innerText = "➜] Upload";
+      uploadFileBtn.style.color = "";
+      uploadFileBtn.style.pointerEvents = "";
+      updateUploadButton();
+    }, 3000);
+  }
+
+  function isFakeTxt(bytes) {
+    return badFileHeaders.some(sig => sig.every((b, i) => bytes[i] === b));
+  }
+
+  async function readTxt(file) {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+
+    if (isFakeTxt(bytes)) throw new Error();
+
+    let badBytes = 0;
+
+    for (const byte of bytes) {
+      const ok =
+        byte === 9 ||
+        byte === 10 ||
+        byte === 13 ||
+        (byte >= 32 && byte <= 126) ||
+        byte >= 128;
+
+      if (!ok) badBytes++;
+    }
+
+    if (bytes.length && badBytes / bytes.length > 0.01) throw new Error();
+
+    const text = new TextDecoder("utf-8").decode(bytes).trim();
+    if (!text) throw new Error();
+
+    return text;
+  }
+
+  async function readPdf(file) {
+    const pdf = await pdfjsLib.getDocument({
+      data: await file.arrayBuffer()
+    }).promise;
+
+    let text = "";
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map(item => item.str).join(" ") + "\n\n";
+    }
+
+    return text.trim();
+  }
+
+  async function readDocx(file) {
+    const result = await mammoth.extractRawText({
+      arrayBuffer: await file.arrayBuffer()
+    });
+
+    const text = result.value.trim();
+    if (!text) throw new Error();
+
+    return text;
+  }
+
+  auth.onAuthStateChanged(user => {
+    currentUser = user;
+    updateAuthUI();
+
+    if (user && isVerifiedUser(user)) {
+      loadUserTheme(user);
+      loadRecentScans();
+    } else {
+      applyTheme("dark");
+      loadedScans = [];
+      recentScansList.innerHTML = "";
+      recentScansSidebar.classList.add("hidden");
+      resetSaveScanUI();
+    }
+  });
+
   authButton.addEventListener("click", () => openAuthModal());
   closeAuthModal.addEventListener("click", () => closeModal());
 
@@ -579,12 +748,12 @@ emailLoginBtn.click();
 
       const methods = await auth.fetchSignInMethodsForEmail(email);
 
-      if (methods.some(method => method === "google.com")) {
+      if (methods.includes("google.com")) {
         showAuthError("This email is already connected to Google. Please continue with Google.");
         return;
       }
 
-      if (methods.some(method => method === "password")) {
+      if (methods.includes("password")) {
         showAuthError("An account already exists with that email.");
         return;
       }
@@ -688,19 +857,9 @@ emailLoginBtn.click();
 
   function closeScanSearch() {
     recentScansSearch.value = "";
-    updateClearSearchButton();
     recentScansTitle.innerText = "Recent Scans";
     recentScansSidebar.classList.remove("search-active");
     renderScansList(loadedScans);
-  }
-
-  function updateClearSearchButton() {
-    if (!clearSearchBtn) return;
-
-    clearSearchBtn.classList.toggle(
-      "visible",
-      recentScansSearch.value.trim().length > 0
-    );
   }
 
   scanSearchBtn.addEventListener("click", openScanSearch);
@@ -711,20 +870,6 @@ emailLoginBtn.click();
     if (event.key === "Enter") {
       runScanSearch();
     }
-  });
-
-  recentScansSearch.addEventListener("input", updateClearSearchButton);
-
-  clearSearchBtn.addEventListener("click", event => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    recentScansSearch.value = "";
-    updateClearSearchButton();
-    recentScansSearch.focus();
-
-    recentScansTitle.innerText = "Recent Scans";
-    renderScansList(loadedScans);
   });
 
   backToRecentScansBtn.addEventListener("click", closeScanSearch);

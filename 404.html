@@ -1,36 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Page Not Found</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+<title>Page Not Found</title>
+
+<link rel="stylesheet" href="style.css">
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
 </head>
+
 <body>
 
-    <a href="https://truthai.online/">
-        <img src="favicon.png" id="logo">
-    </a>
+<a href="https://truthai.online/">
+<img
+src="favicon.png"
+id="logo"
+data-dark-logo="favicon.png"
+data-light-logo="favicon-light-mode.png"
+>
+</a>
 
-    <div id="app">
-        <div id="input-area">
-            <div class="input-wrapper" style="text-align:center;">
+<div id="app">
+<div id="input-area">
+<div class="input-wrapper" style="text-align:center;">
 
-                <img src="robot-404.png" alt="Confused Truth AI robot" style="width:190px; max-width:80%; margin-bottom:18px;">
+<img
+src="robot-404.png"
+alt="Confused Truth AI robot"
+style="width:190px; max-width:80%; margin-bottom:18px;"
+>
 
-                <h2>Whoops… how did we get here?</h2>
+<h2>Whoops… how did we get here?</h2>
 
-                <p style="opacity:0.8; line-height:1.5;">
-                    This page doesn’t exist.<br>
-                    Let’s get you back on track.
-                </p>
+<p style="opacity:0.8; line-height:1.5;">
+This page doesn’t exist.<br>
+Let’s get you back on track.
+</p>
 
-                <button onclick="window.location.href='/'">
-                    Go Back Home
-                </button>
+<button onclick="window.location.href='/'">
+Go Back Home
+</button>
 
-            </div>
-        </div>
-    </div>
+</div>
+</div>
+</div>
+
+<script>
+const savedTheme =
+localStorage.getItem("truthai_theme_preference");
+
+const logo =
+document.getElementById("logo");
+
+if (savedTheme === "light") {
+
+document.body.classList.add("light-mode");
+
+if (logo) {
+logo.src =
+logo.dataset.lightLogo ||
+"favicon-light-mode.png";
+}
+
+} else {
+
+document.body.classList.remove("light-mode");
+
+if (logo) {
+logo.src =
+logo.dataset.darkLogo ||
+"favicon.png";
+}
+}
+</script>
 
 </body>
 </html>

@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const scanSearchBtn = document.getElementById("scanSearchBtn");
   const scanSearchBtnInside = document.getElementById("scanSearchBtnInside");
   const recentScansSearch = document.getElementById("recentScansSearch");
+  const clearSearchBtn = document.getElementById("clearSearchBtn");
   const backToRecentScansBtn = document.getElementById("backToRecentScansBtn");
   const recentScansTitle = document.getElementById("recentScansTitle");
   const recentScansList = document.getElementById("recentScansList");
@@ -435,6 +436,30 @@ document.addEventListener("DOMContentLoaded", () => {
       updateWordCount();
       updateUploadButton();
     });
+
+    recentScansSearch.addEventListener("input", () => {
+
+clearSearchBtn.classList.toggle(
+"visible",
+recentScansSearch.value.trim().length > 0
+);
+
+});
+
+clearSearchBtn.addEventListener("click", () => {
+
+recentScansSearch.value = "";
+
+clearSearchBtn.classList.remove("visible");
+
+recentScansSearch.focus();
+
+recentScansTitle.innerText =
+"Recent Scans";
+
+renderScansList(loadedScans);
+
+});
 
     recentScansList.appendChild(button);
   }

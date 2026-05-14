@@ -781,3 +781,36 @@ body.light-mode .theme-toggle {
     background: rgba(15,23,42,0.08);
     border-color: rgba(15,23,42,0.12);
 }
+
+
+/* Extra account spacing/divider */
+.account-logout-divider {
+    width: 100%;
+    height: 1px;
+    margin: 18px 0 18px;
+    background: rgba(255,255,255,0.1);
+}
+
+body.light-mode .account-logout-divider {
+    background: rgba(15,23,42,0.1);
+}
+
+/* Push logout lower when account settings are shown */
+#authAccountView #logoutBtn {
+    margin-top: 4px;
+}
+
+/* Light mode icon/text fixes */
+body.light-mode #uploadFileBtn,
+body.light-mode #scanSearchBtn,
+body.light-mode #scanSearchBtnInside,
+body.light-mode #backToRecentScansBtn {
+    color: rgba(15,23,42,0.72) !important;
+}
+
+body.light-mode #uploadFileBtn:hover,
+body.light-mode #scanSearchBtn:hover,
+body.light-mode #scanSearchBtnInside:hover,
+body.light-mode #backToRecentScansBtn:hover {
+    color: #2563eb !important;
+}

@@ -615,3 +615,169 @@ textarea::-webkit-scrollbar-thumb:hover,
 
     transform: translateY(-50%);
 }
+
+
+/* Account appearance toggle */
+.appearance-setting {
+    margin: 18px 0 8px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.appearance-label {
+    margin-bottom: 10px;
+    color: rgba(255,255,255,0.82);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.theme-toggle-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.theme-icon {
+    font-size: 15px;
+    color: rgba(255,255,255,0.72);
+    line-height: 1;
+}
+
+.theme-toggle {
+    position: relative;
+    width: 92px;
+    height: 40px;
+    margin: 0;
+    padding: 0;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.22);
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: none;
+    overflow: hidden;
+}
+
+.theme-toggle:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.theme-toggle-thumb {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.22);
+    transition: transform 0.25s ease;
+}
+
+.theme-toggle.active {
+    background: linear-gradient(90deg, #38bdf8, #818cf8);
+}
+
+.theme-toggle.active .theme-toggle-thumb {
+    transform: translateX(52px);
+}
+
+/* Light mode */
+body.light-mode {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    color: #0f172a;
+}
+
+body.light-mode #app,
+body.light-mode .auth-card,
+body.light-mode #recentScansSidebar {
+    background: rgba(255,255,255,0.82);
+    color: #0f172a;
+    border-color: rgba(15,23,42,0.12);
+}
+
+body.light-mode h1 {
+    color: #0f172a;
+    text-shadow: none;
+}
+
+body.light-mode textarea,
+body.light-mode .auth-input,
+body.light-mode #recentScansSearch {
+    background: rgba(255,255,255,0.92);
+    color: #0f172a;
+    border-color: rgba(15,23,42,0.15);
+}
+
+body.light-mode textarea::placeholder,
+body.light-mode .auth-input::placeholder,
+body.light-mode #recentScansSearch::placeholder {
+    color: rgba(15,23,42,0.48);
+}
+
+body.light-mode #authSubtitle,
+body.light-mode .auth-small-text,
+body.light-mode #recentScansTitle,
+body.light-mode .theme-icon,
+body.light-mode .appearance-label {
+    color: rgba(15,23,42,0.72);
+}
+
+body.light-mode .appearance-setting {
+    border-top-color: rgba(15,23,42,0.1);
+}
+
+body.light-mode .auth-divider,
+body.light-mode .auth-divider span {
+    color: rgba(15,23,42,0.42);
+}
+
+body.light-mode #authButton {
+    background: rgba(255,255,255,0.72);
+    color: #0f172a;
+    border-color: rgba(15,23,42,0.12);
+}
+
+body.light-mode .auth-secondary-btn {
+    background: rgba(15,23,42,0.06);
+    color: #0f172a;
+    border-color: rgba(15,23,42,0.12);
+}
+
+body.light-mode .auth-close,
+body.light-mode .auth-back {
+    color: rgba(15,23,42,0.66);
+}
+
+body.light-mode .auth-close:hover,
+body.light-mode .auth-back:hover {
+    color: #0f172a;
+}
+
+body.light-mode .scan-item {
+    background: rgba(15,23,42,0.05);
+    color: #0f172a;
+    border-color: rgba(15,23,42,0.08);
+}
+
+body.light-mode .scan-item:hover {
+    background: rgba(56,189,248,0.16);
+    border-color: rgba(56,189,248,0.22);
+}
+
+body.light-mode #result-area {
+    background: rgba(255,255,255,0.96);
+    color: #0f172a;
+}
+
+body.light-mode #scanTitleInput {
+    background: rgba(255,255,255,0.92);
+    color: #0f172a;
+    border-color: rgba(15,23,42,0.15);
+}
+
+body.light-mode .theme-toggle {
+    background: rgba(15,23,42,0.08);
+    border-color: rgba(15,23,42,0.12);
+}

@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const wordCountNumber = document.getElementById("wordCountNumber");
   const uploadFileBtn = document.getElementById("uploadFileBtn");
   const fileUpload = document.getElementById("fileUpload");
+  const logo = document.getElementById("logo");
 
   const authButton = document.getElementById("authButton");
   const authModal = document.getElementById("authModal");
@@ -64,6 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const FREE_SCAN_LIMIT = 3;
   const FREE_SCAN_KEY = "truthai_free_scans_used";
+  const THEME_KEY = "truthai_theme_preference";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBTfH0NhDeTmxjhwjxYgr7YzK4V4zQrcI4",
@@ -267,12 +269,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.body.classList.toggle("light-mode", isLight);
 
+    localStorage.setItem(THEME_KEY, isLight ? "light" : "dark");
+
     if (themeToggleBtn) {
       themeToggleBtn.classList.toggle("active", isLight);
+    }
+
+    if (logo) {
+      logo.src = isLight
+        ? (logo.dataset.lightLogo || "favicon-light-mode.png")
+        : (logo.dataset.darkLogo || "favicon.png");
     }
   }
 
   async function loadUserTheme(user) {
+    const cachedTheme = localStorage.getItem(THEME_KEY);
+
+    if (cachedTheme === "light" || cachedTheme === "dark") {
+      applyTheme(cachedTheme);
+    }
+
     if (!user || !isVerifiedUser(user)) {
       applyTheme("dark");
       return;
@@ -284,7 +300,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       applyTheme(theme);
     } catch {
-      applyTheme("dark");
+      applyTheme(cachedTheme === "light" ? "light" : "dark");
     }
   }
 
@@ -985,6 +1001,13 @@ emailLoginBtn.click();
     textInput.focus();
     updateUploadButton();
   });
+
+  const savedTheme = localStorage.getItem(THEME_KEY);
+  if (savedTheme === "light") {
+    applyTheme("light");
+  } else {
+    applyTheme("dark");
+  }
 
   updateUploadButton();
   updateAuthUI();

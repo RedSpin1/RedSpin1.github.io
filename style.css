@@ -814,3 +814,68 @@ body.light-mode #scanSearchBtnInside:hover,
 body.light-mode #backToRecentScansBtn:hover {
     color: #2563eb !important;
 }
+
+
+#recentScansSearch {
+padding-right: 44px;
+}
+
+#clearSearchBtn {
+position: absolute;
+right: 10px;
+top: 50%;
+
+transform: translateY(-50%) scale(0.85);
+
+width: 22px;
+height: 22px;
+
+margin: 0;
+padding: 0;
+
+border-radius: 50%;
+
+background: rgba(255,255,255,0.22);
+border: none;
+box-shadow: none;
+
+color: rgba(255,255,255,0.78);
+
+font-size: 16px;
+line-height: 1;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+cursor: pointer;
+
+opacity: 0;
+pointer-events: none;
+
+transition:
+opacity 0.18s ease,
+transform 0.18s ease,
+color 0.18s ease;
+}
+
+#clearSearchBtn.visible {
+opacity: 1;
+pointer-events: auto;
+transform: translateY(-50%) scale(1);
+}
+
+#clearSearchBtn:hover {
+color: white;
+transform: translateY(-50%) scale(1.06);
+box-shadow: none;
+}
+
+body.light-mode #clearSearchBtn {
+background: rgba(255,255,255,0.22);
+color: rgba(15,23,42,0.72);
+}
+
+body.light-mode #clearSearchBtn:hover {
+color: #0f172a;
+}
